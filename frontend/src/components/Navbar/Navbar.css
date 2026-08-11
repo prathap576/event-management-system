@@ -45,15 +45,18 @@
   background-color: white;
   border: 1px solid #2563eb;
   color: #2563eb;
+  text-decoration: none;
 }
 
 .signup-btn {
   background-color: #2563eb;
   border: 1px solid #2563eb;
   color: white;
+  text-decoration: none;
 }
 
 .login-btn:hover,
 .signup-btn:hover {
   opacity: 0.85;
+ 
 }
