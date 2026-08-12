@@ -1,13 +1,14 @@
+import { Link } from "react-router-dom";
 import "./EventCard.css";
 
 function EventCard({ event }) {
   return (
-    <div className="event-card">
+    <article className="event-card">
       <div className="event-image">
         <span>{event.category}</span>
       </div>
 
-      <div className="event-card-content">
+      <div className="event-content">
         <h3>{event.title}</h3>
 
         <p className="event-date">
@@ -22,11 +23,14 @@ function EventCard({ event }) {
           {event.description}
         </p>
 
-        <button className="view-event-btn">
+        <Link
+          to={`/events/${event.id}`}
+          className="view-event-btn"
+        >
           View Event
-        </button>
+        </Link>
       </div>
-    </div>
+    </article>
   );
 }
 
