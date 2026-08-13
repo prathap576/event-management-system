@@ -1,5 +1,5 @@
 import "./Login.css";
-
+import {Link} from "react-router-dom";
 function Login() {
   return (
     <div className="login-page">
@@ -30,7 +30,7 @@ function Login() {
         </form>
 
         <p className="signup-text">
-          Don't have an account? <span>Sign Up</span>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
       </div>
     </div>
