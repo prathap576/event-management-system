@@ -1,84 +1,225 @@
 import { Link } from "react-router-dom";
-import "./EventTable.css";
 
-function EventTable({ events, onDelete }) {
+import {
+  getEventStatus,
+} from "../../utils/eventUtils";
 
-  if (!events || events.length === 0) {
+function EventTable({
+  events,
+  onDelete,
+}) {
+  if (!events.length) {
     return (
-      <div className="event-table-empty">
-        <div>📅</div>
-        <h3>No events found</h3>
-        <p>Create an event to see it here.</p>
+      <div className="empty-state">
+
+        <div className="empty-icon">
+          📅
+        </div>
+
+        <h3>
+          No events found
+        </h3>
+
+        <p>
+          Try changing your filters
+          or create a new event.
+        </p>
+
       </div>
     );
   }
 
   return (
-    <div className="event-table-container">
+    <div className="table-wrapper">
 
-      <table className="event-table">
+      <table className="admin-table">
 
         <thead>
+
           <tr>
-            <th>Event</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Location</th>
-            <th>Category</th>
-            <th>Capacity</th>
-            <th>Actions</th>
+
+            <th>
+              EVENT
+            </th>
+
+            <th>
+              DATE & TIME
+            </th>
+
+            <th>
+              LOCATION
+            </th>
+
+            <th>
+              CATEGORY
+            </th>
+
+            <th>
+              CAPACITY
+            </th>
+
+            <th>
+              STATUS
+            </th>
+
+            <th>
+              ACTIONS
+            </th>
+
           </tr>
+
         </thead>
+
 
         <tbody>
 
-          {events.map((event) => (
+          {events.map((event) => {
 
-            <tr key={event.id}>
+            const currentStatus =
+              getEventStatus(event);
 
-              <td>
-                <strong>{event.title}</strong>
-              </td>
+            return (
+              <tr key={event.id}>
 
-              <td>{event.date}</td>
+                {/* EVENT */}
 
-              <td>{event.time}</td>
+                <td>
 
-              <td>{event.location}</td>
+                  <div className="table-event">
 
-              <td>
-                <span className="event-category">
-                  {event.category}
-                </span>
-              </td>
+                    <div className="table-event-icon">
 
-              <td>{event.capacity}</td>
+                      {event.category ===
+                      "Coding"
+                        ? "💻"
+                        : event.category ===
+                          "Workshop"
+                        ? "🛠️"
+                        : event.category ===
+                          "Cultural"
+                        ? "🎭"
+                        : event.category ===
+                          "Seminar"
+                        ? "🎓"
+                        : "📅"}
 
-              <td>
+                    </div>
 
-                <div className="event-actions">
+                    <div>
 
-                  <Link
-                    to={`/admin/events/edit/${event.id}`}
-                    className="edit-action"
+                      <strong>
+                        {event.title}
+                      </strong>
+
+                      <span>
+                        ID #{event.id}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+
+                {/* DATE */}
+
+                <td>
+
+                  <div className="table-date">
+
+                    <strong>
+                      {new Date(
+                        event.date
+                      ).toLocaleDateString(
+                        "en-IN",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        }
+                      )}
+                    </strong>
+
+                    <span>
+                      {event.time}
+                    </span>
+
+                  </div>
+
+                </td>
+
+
+                {/* LOCATION */}
+
+                <td>
+                  📍 {event.location}
+                </td>
+
+
+                {/* CATEGORY */}
+
+                <td>
+
+                  <span className="category-pill">
+                    {event.category}
+                  </span>
+
+                </td>
+
+
+                {/* CAPACITY */}
+
+                <td>
+                  {event.capacity}
+                </td>
+
+
+                {/* STATUS */}
+
+                <td>
+
+                  <span
+                    className={`status-badge ${currentStatus.toLowerCase()}`}
                   >
-                    Edit
-                  </Link>
+                    {currentStatus}
+                  </span>
 
-                  <button
-                    className="delete-action"
-                    onClick={() => onDelete(event)}
-                  >
-                    Delete
-                  </button>
+                </td>
 
-                </div>
 
-              </td>
+                {/* ACTIONS */}
 
-            </tr>
+                <td>
 
-          ))}
+                  <div className="action-buttons">
+
+                    <Link
+                      to={`/admin/events/edit/${event.id}`}
+                      className="icon-action edit"
+                      title="Edit event"
+                    >
+                      ✏️
+                    </Link>
+
+                    <button
+                      type="button"
+                      className="icon-action delete"
+                      title="Delete event"
+                      onClick={() =>
+                        onDelete(event)
+                      }
+                    >
+                      🗑️
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+            );
+          })}
 
         </tbody>
 

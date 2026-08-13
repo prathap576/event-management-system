@@ -1,57 +1,84 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useState,
+} from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  useAdmin,
+} from "../../context/AdminContext";
+
 import AdminSidebar from "../../components/admin/AdminSidebar";
+
 import EventForm from "../../components/admin/EventForm";
-import { createEvent } from "../../services/eventApi";
-import "./AdminPages.css";
+
 
 function CreateEvent() {
 
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const navigate =
+    useNavigate();
 
-  const handleCreate = async (eventData) => {
+  const {
+    createEvent,
+  } = useAdmin();
 
-    try {
 
-      setLoading(true);
+  const [loading, setLoading] =
+    useState(false);
 
-      await createEvent(eventData);
 
-      alert("Event created successfully!");
+  const handleCreate = (
+    eventData
+  ) => {
 
-      navigate("/admin/events");
+    setLoading(true);
 
-    } catch (error) {
 
-      console.error(error);
+    setTimeout(() => {
 
-      alert(
-        error.response?.data?.message ||
-        "Failed to create event"
+      createEvent(
+        eventData
       );
 
-    } finally {
       setLoading(false);
-    }
+
+      navigate(
+        "/admin/events"
+      );
+
+    }, 500);
+
   };
 
+
   return (
+
     <div className="admin-layout">
 
       <AdminSidebar />
 
+
       <main className="admin-main">
 
         <div className="page-heading">
-          <span>EVENT MANAGEMENT</span>
 
-          <h1>Create Event</h1>
+          <span>
+            EVENT MANAGEMENT
+          </span>
+
+          <h1>
+            Create Event
+          </h1>
 
           <p>
-            Add a new event to the event management system.
+            Add a new event to your
+            event management system.
           </p>
+
         </div>
+
 
         <EventForm
           onSubmit={handleCreate}

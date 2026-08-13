@@ -1,74 +1,187 @@
-import { NavLink } from "react-router-dom";
-import "./AdminSidebar.css";
+import {
+  NavLink,
+  useNavigate,
+} from "react-router-dom";
+
+import { useAdmin } from "../../context/AdminContext";
 
 function AdminSidebar() {
+  const navigate = useNavigate();
+
+  const {
+    admin,
+    logoutAdmin,
+    resetDemoData,
+  } = useAdmin();
+
+  const handleLogout = () => {
+    logoutAdmin();
+
+    navigate("/admin-login");
+  };
+
+  const handleReset = () => {
+    const confirmed = window.confirm(
+      "Reset all demo events and registrations?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    resetDemoData();
+
+    window.location.reload();
+  };
+
   return (
     <aside className="admin-sidebar">
 
-      <div className="admin-brand">
-        <div className="admin-logo">EM</div>
+      {/* BRAND */}
+
+      <div className="sidebar-brand">
+
+        <div className="brand-logo">
+          EM
+        </div>
 
         <div>
-          <h2>EventManager</h2>
-          <span>Administration</span>
+          <strong>
+            EventManager
+          </strong>
+
+          <span>
+            Admin Panel
+          </span>
         </div>
+
       </div>
 
-      <div className="sidebar-section">
-        <p>MAIN MENU</p>
+
+      {/* ADMIN USER */}
+
+      <div className="sidebar-user">
+
+        <div className="sidebar-avatar">
+          {admin?.name
+            ?.charAt(0)
+            .toUpperCase() || "A"}
+        </div>
+
+        <div>
+          <strong>
+            {admin?.name || "Admin"}
+          </strong>
+
+          <span>
+            Administrator
+          </span>
+        </div>
+
+      </div>
+
+
+      {/* NAVIGATION */}
+
+      <nav className="sidebar-nav">
+
+        <span className="sidebar-section-title">
+          MAIN MENU
+        </span>
+
 
         <NavLink
           to="/admin"
           end
           className={({ isActive }) =>
-            isActive ? "sidebar-link active" : "sidebar-link"
+            `sidebar-link ${
+              isActive ? "active" : ""
+            }`
           }
         >
           <span>📊</span>
-          Dashboard
+          <span>Dashboard</span>
         </NavLink>
+
 
         <NavLink
           to="/admin/events"
           className={({ isActive }) =>
-            isActive ? "sidebar-link active" : "sidebar-link"
+            `sidebar-link ${
+              isActive ? "active" : ""
+            }`
           }
         >
           <span>📅</span>
-          Manage Events
+          <span>Manage Events</span>
         </NavLink>
+
 
         <NavLink
           to="/admin/events/create"
           className={({ isActive }) =>
-            isActive ? "sidebar-link active" : "sidebar-link"
+            `sidebar-link ${
+              isActive ? "active" : ""
+            }`
           }
         >
           <span>➕</span>
-          Create Event
+          <span>Create Event</span>
         </NavLink>
+
 
         <NavLink
           to="/admin/registrations"
           className={({ isActive }) =>
-            isActive ? "sidebar-link active" : "sidebar-link"
+            `sidebar-link ${
+              isActive ? "active" : ""
+            }`
           }
         >
           <span>👥</span>
-          Registrations
+          <span>Registrations</span>
         </NavLink>
-      </div>
+
+
+        <span className="sidebar-section-title second">
+          SYSTEM
+        </span>
+
+
+        <button
+          type="button"
+          className="sidebar-link sidebar-button"
+          onClick={handleReset}
+        >
+          <span>🔄</span>
+          <span>Reset Demo Data</span>
+        </button>
+
+      </nav>
+
+
+      {/* BOTTOM */}
 
       <div className="sidebar-bottom">
 
-        <NavLink to="/" className="sidebar-link">
-          <span>🏠</span>
-          Back to Website
-        </NavLink>
+        <div className="sidebar-status">
 
-        <button className="sidebar-logout">
+          <span className="online-dot"></span>
+
+          <span>
+            Demo mode active
+          </span>
+
+        </div>
+
+
+        <button
+          type="button"
+          className="sidebar-link sidebar-button logout"
+          onClick={handleLogout}
+        >
           <span>🚪</span>
-          Logout
+          <span>Logout</span>
         </button>
 
       </div>

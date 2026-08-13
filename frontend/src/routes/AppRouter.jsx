@@ -2,80 +2,122 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
-
-import Navbar from "../components/Navbar/Navbar";
-import Home from "../pages/Home";
 
 import AdminRoute from "./AdminRoute";
 
+import AdminLogin from "../pages/admin/AdminLogin";
+
 import AdminDashboard from "../pages/admin/AdminDashboard";
+
 import ManageEvents from "../pages/admin/ManageEvents";
+
 import CreateEvent from "../pages/admin/CreateEvent";
+
 import EditEvent from "../pages/admin/EditEvent";
+
 import EventRegistrations from "../pages/admin/EventRegistrations";
 
-function PublicLayout({ children }) {
-  return (
-    <>
-      <Navbar />
-      {children}
-    </>
-  );
-}
 
 function AppRouter() {
+
   return (
+
     <BrowserRouter>
 
       <Routes>
 
-        {/* PUBLIC WEBSITE */}
+        {/* HOME */}
 
         <Route
           path="/"
           element={
-            <PublicLayout>
-              <Home />
-            </PublicLayout>
+            <Navigate
+              to="/admin-login"
+              replace
+            />
           }
         />
 
-        {/* ADMIN AREA */}
 
-        <Route element={<AdminRoute />}>
+        {/* ADMIN LOGIN */}
+
+        <Route
+          path="/admin-login"
+          element={
+            <AdminLogin />
+          }
+        />
+
+
+        {/* PROTECTED ADMIN */}
+
+        <Route
+          element={
+            <AdminRoute />
+          }
+        >
 
           <Route
             path="/admin"
-            element={<AdminDashboard />}
+            element={
+              <AdminDashboard />
+            }
           />
+
 
           <Route
             path="/admin/events"
-            element={<ManageEvents />}
+            element={
+              <ManageEvents />
+            }
           />
+
 
           <Route
             path="/admin/events/create"
-            element={<CreateEvent />}
+            element={
+              <CreateEvent />
+            }
           />
+
 
           <Route
             path="/admin/events/edit/:id"
-            element={<EditEvent />}
+            element={
+              <EditEvent />
+            }
           />
+
 
           <Route
             path="/admin/registrations"
-            element={<EventRegistrations />}
+            element={
+              <EventRegistrations />
+            }
           />
 
         </Route>
+
+
+        {/* UNKNOWN ROUTE */}
+
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/admin-login"
+              replace
+            />
+          }
+        />
 
       </Routes>
 
     </BrowserRouter>
   );
 }
+
 
 export default AppRouter;

@@ -1,17 +1,26 @@
-import "./StatCard.css";
-
-function StatCard({ title, value, icon, description }) {
+function StatCard({
+  title,
+  value,
+  icon,
+  description,
+}) {
   return (
     <div className="stat-card">
 
-      <div className="stat-card-content">
-        <p>{title}</p>
+      <div className="stat-card-info">
 
-        <h2>{value}</h2>
+        <span>
+          {title}
+        </span>
 
-        {description && (
-          <span>{description}</span>
-        )}
+        <strong>
+          {value}
+        </strong>
+
+        <small>
+          {description}
+        </small>
+
       </div>
 
       <div className="stat-card-icon">

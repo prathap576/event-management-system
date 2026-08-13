@@ -1,83 +1,523 @@
+import {
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  useAdmin,
+} from "../../context/AdminContext";
+
 import AdminSidebar from "../../components/admin/AdminSidebar";
-import "./AdminPages.css";
+
 
 function EventRegistrations() {
 
-  const registrations = [];
+  const {
+    registrations,
+    updateRegistrationStatus,
+  } = useAdmin();
+
+
+  const [search, setSearch] =
+    useState("");
+
+  const [statusFilter, setStatusFilter] =
+    useState("All");
+
+  const [eventFilter, setEventFilter] =
+    useState("All");
+
+
+  // ==================================================
+  // FILTER
+  // ==================================================
+
+  const filteredRegistrations =
+    useMemo(() => {
+
+      const searchValue =
+        search
+          .trim()
+          .toLowerCase();
+
+
+      return registrations.filter(
+        (registration) => {
+
+          const matchesSearch =
+            registration.name
+              .toLowerCase()
+              .includes(searchValue) ||
+
+            registration.email
+              .toLowerCase()
+              .includes(searchValue) ||
+
+            registration.eventName
+              .toLowerCase()
+              .includes(searchValue);
+
+
+          const matchesStatus =
+            statusFilter ===
+              "All" ||
+            registration.status ===
+              statusFilter;
+
+
+          const matchesEvent =
+            eventFilter ===
+              "All" ||
+            registration.eventName ===
+              eventFilter;
+
+
+          return (
+            matchesSearch &&
+            matchesStatus &&
+            matchesEvent
+          );
+
+        }
+      );
+
+    }, [
+      registrations,
+      search,
+      statusFilter,
+      eventFilter,
+    ]);
+
+
+  const eventNames = [
+    ...new Set(
+      registrations.map(
+        (registration) =>
+          registration.eventName
+      )
+    ),
+  ];
+
+
+  const confirmed =
+    registrations.filter(
+      (registration) =>
+        registration.status ===
+        "Confirmed"
+    ).length;
+
+
+  const pending =
+    registrations.filter(
+      (registration) =>
+        registration.status ===
+        "Pending"
+    ).length;
+
+
+  const cancelled =
+    registrations.filter(
+      (registration) =>
+        registration.status ===
+        "Cancelled"
+    ).length;
+
 
   return (
+
     <div className="admin-layout">
 
       <AdminSidebar />
 
+
       <main className="admin-main">
 
-        <div className="page-heading">
-          <span>REGISTRATION MANAGEMENT</span>
+        {/* HEADER */}
 
-          <h1>Event Registrations</h1>
+        <div className="page-heading">
+
+          <span>
+            REGISTRATION MANAGEMENT
+          </span>
+
+          <h1>
+            Event Registrations
+          </h1>
 
           <p>
-            View registrations for your events.
+            View and manage participant
+            registrations.
           </p>
+
         </div>
 
-        <section className="dashboard-panel">
 
-          {registrations.length === 0 ? (
+        {/* REGISTRATION STATS */}
 
-            <div className="empty-state">
+        <div className="registration-stats">
 
-              <div>👥</div>
+          <div>
 
-              <h3>No registrations available</h3>
+            <span>
+              Total
+            </span>
 
-              <p>
-                Registration data will appear here
-                after the registration API is connected.
-              </p>
+            <strong>
+              {registrations.length}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Confirmed
+            </span>
+
+            <strong>
+              {confirmed}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Pending
+            </span>
+
+            <strong>
+              {pending}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Cancelled
+            </span>
+
+            <strong>
+              {cancelled}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        {/* TABLE */}
+
+        <section className="content-card">
+
+
+          {/* FILTERS */}
+
+          <div className="filter-bar">
+
+            <div className="search-box">
+
+              <span>
+                🔍
+              </span>
+
+              <input
+                type="text"
+                placeholder="Search participant or event..."
+                value={search}
+                onChange={(e) =>
+                  setSearch(
+                    e.target.value
+                  )
+                }
+              />
 
             </div>
 
-          ) : (
 
-            <div className="event-table-container">
+            <select
+              value={eventFilter}
+              onChange={(e) =>
+                setEventFilter(
+                  e.target.value
+                )
+              }
+            >
 
-              <table className="event-table">
+              <option value="All">
+                All Events
+              </option>
 
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Event</th>
-                    <th>Status</th>
-                    <th>Registered At</th>
-                  </tr>
-                </thead>
+              {eventNames.map(
+                (eventName) => (
 
-                <tbody>
+                  <option
+                    value={eventName}
+                    key={eventName}
+                  >
+                    {eventName}
+                  </option>
 
-                  {registrations.map((registration) => (
+                )
+              )}
 
-                    <tr key={registration.id}>
+            </select>
 
-                      <td>{registration.name}</td>
-                      <td>{registration.email}</td>
-                      <td>{registration.event}</td>
-                      <td>{registration.status}</td>
-                      <td>{registration.registeredAt}</td>
+
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(
+                  e.target.value
+                )
+              }
+            >
+
+              <option value="All">
+                All Status
+              </option>
+
+              <option value="Confirmed">
+                Confirmed
+              </option>
+
+              <option value="Pending">
+                Pending
+              </option>
+
+              <option value="Cancelled">
+                Cancelled
+              </option>
+
+            </select>
+
+          </div>
+
+
+          {/* TABLE */}
+
+          <div className="table-wrapper">
+
+            <table className="admin-table">
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    PARTICIPANT
+                  </th>
+
+                  <th>
+                    EVENT
+                  </th>
+
+                  <th>
+                    CONTACT
+                  </th>
+
+                  <th>
+                    REGISTERED
+                  </th>
+
+                  <th>
+                    STATUS
+                  </th>
+
+                  <th>
+                    UPDATE STATUS
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                {filteredRegistrations.map(
+                  (registration) => (
+
+                    <tr
+                      key={
+                        registration.id
+                      }
+                    >
+
+                      {/* PARTICIPANT */}
+
+                      <td>
+
+                        <div className="participant-cell">
+
+                          <div className="avatar">
+                            {registration.name
+                              .charAt(0)
+                              .toUpperCase()}
+                          </div>
+
+                          <div>
+
+                            <strong>
+                              {
+                                registration.name
+                              }
+                            </strong>
+
+                            <span>
+                              ID #
+                              {
+                                registration.id
+                              }
+                            </span>
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+
+                      {/* EVENT */}
+
+                      <td>
+
+                        <strong>
+                          {
+                            registration.eventName
+                          }
+                        </strong>
+
+                      </td>
+
+
+                      {/* CONTACT */}
+
+                      <td>
+
+                        <div className="contact-cell">
+
+                          <span>
+                            ✉{" "}
+                            {
+                              registration.email
+                            }
+                          </span>
+
+                          <span>
+                            ☎{" "}
+                            {
+                              registration.phone
+                            }
+                          </span>
+
+                        </div>
+
+                      </td>
+
+
+                      {/* DATE */}
+
+                      <td>
+
+                        {new Date(
+                          registration.registeredAt
+                        ).toLocaleDateString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          }
+                        )}
+
+                      </td>
+
+
+                      {/* STATUS */}
+
+                      <td>
+
+                        <span
+                          className={`status-badge ${registration.status.toLowerCase()}`}
+                        >
+                          {
+                            registration.status
+                          }
+                        </span>
+
+                      </td>
+
+
+                      {/* UPDATE */}
+
+                      <td>
+
+                        <select
+                          className="status-select"
+                          value={
+                            registration.status
+                          }
+                          onChange={(e) =>
+                            updateRegistrationStatus(
+                              registration.id,
+                              e.target.value
+                            )
+                          }
+                        >
+
+                          <option value="Confirmed">
+                            Confirmed
+                          </option>
+
+                          <option value="Pending">
+                            Pending
+                          </option>
+
+                          <option value="Cancelled">
+                            Cancelled
+                          </option>
+
+                        </select>
+
+                      </td>
 
                     </tr>
 
-                  ))}
+                  )
+                )}
 
-                </tbody>
+              </tbody>
 
-              </table>
+            </table>
 
-            </div>
 
-          )}
+            {filteredRegistrations.length ===
+              0 && (
+
+              <div className="empty-state">
+
+                <div className="empty-icon">
+                  👥
+                </div>
+
+                <h3>
+                  No registrations found
+                </h3>
+
+                <p>
+                  Try changing your filters.
+                </p>
+
+              </div>
+
+            )}
+
+          </div>
 
         </section>
 
