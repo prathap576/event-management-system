@@ -1,9 +1,8 @@
-import "./Home.css";
-import { Link } from "react-router-dom";
+import "./Events.css";
 import EventCard from "../components/EventCard/EventCard";
 
-function Home() {
-  const upcomingEvents = [
+function Events() {
+  const events = [
     {
       id: 1,
       title: "Tech Conference 2026",
@@ -34,37 +33,15 @@ function Home() {
   ];
 
   return (
-    <main className="home">
-
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
-          <h1>
-            Discover Events That Matter
-          </h1>
-
-          <p>
-            Find and explore exciting events happening around you.
-          </p>
-
-          <Link to="/events" className="explore-btn">
-            Explore Events
-          </Link>
-        </div>
+    <main className="events-page">
+      <section className="events-header">
+        <h1>Explore Events</h1>
+        <p>Find exciting events and activities happening around you.</p>
       </section>
 
-      {/* Upcoming Events */}
-      <section className="upcoming-events">
-        <div className="section-header">
-          <h2>Upcoming Events</h2>
-
-          <p>
-            Discover the latest events and activities.
-          </p>
-        </div>
-
+      <section className="events-list">
         <div className="events-grid">
-          {upcomingEvents.map((event) => (
+          {events.map((event) => (
             <EventCard
               key={event.id}
               event={event}
@@ -72,9 +49,8 @@ function Home() {
           ))}
         </div>
       </section>
-
     </main>
   );
 }
 
-export default Home;
+export default Events;
