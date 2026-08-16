@@ -1,4 +1,5 @@
 import "./Home.css";
+import { Link } from "react-router-dom";
 import EventCard from "../components/EventCard/EventCard";
 import events from "../data/events";
 
@@ -14,9 +15,9 @@ function Home() {
             Find and explore exciting events happening around you.
           </p>
 
-          <button className="explore-btn">
+          <Link to="/events" className="explore-btn">
             Explore Events
-          </button>
+          </Link>
         </div>
       </section>
 
