@@ -1,0 +1,81 @@
+.event-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.event-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.event-table th {
+  padding: 14px;
+  text-align: left;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.event-table td {
+  padding: 16px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.event-table td strong {
+  color: #0f172a;
+}
+
+.event-category {
+  padding: 5px 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.event-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.edit-action,
+.delete-action {
+  padding: 7px 11px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.edit-action {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.delete-action {
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.event-table-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.event-table-empty div {
+  font-size: 40px;
+}
+
+.event-table-empty h3 {
+  color: #0f172a;
+}
+
+.event-table-empty p {
+  color: #64748b;
+}
