@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import Navbar from "../components/Navbar/Navbar";
+
 import MyRegistrations from "../pages/MyRegistrations";
 import Home from "../pages/Home";
 import Events from "../pages/Events";
@@ -15,19 +16,22 @@ import Signup from "../pages/Signup";
 
 import AdminRoute from "./AdminRoute";
 
-import AdminLogin from "../pages/admin/AdminLogin";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageEvents from "../pages/admin/ManageEvents";
 import CreateEvent from "../pages/admin/CreateEvent";
 import EditEvent from "../pages/admin/EditEvent";
 import EventRegistrations from "../pages/admin/EventRegistrations";
 
+
 function AppRouter() {
+
   return (
     <BrowserRouter>
+
       <Navbar />
 
       <Routes>
+
         {/* ================= USER ROUTES ================= */}
 
         <Route
@@ -45,7 +49,6 @@ function AppRouter() {
           element={<EventDetails />}
         />
 
-        {/* My Registrations - USER ROUTE */}
         <Route
           path="/my-registrations"
           element={<MyRegistrations />}
@@ -61,16 +64,11 @@ function AppRouter() {
           element={<Signup />}
         />
 
-        {/* ================= ADMIN LOGIN ================= */}
 
-        <Route
-          path="/admin-login"
-          element={<AdminLogin />}
-        />
-
-        {/* ================= PROTECTED ADMIN ROUTES ================= */}
+        {/* ================= ADMIN ROUTES ================= */}
 
         <Route element={<AdminRoute />}>
+
           <Route
             path="/admin"
             element={<AdminDashboard />}
@@ -95,7 +93,9 @@ function AppRouter() {
             path="/admin/registrations"
             element={<EventRegistrations />}
           />
+
         </Route>
+
 
         {/* ================= UNKNOWN ROUTE ================= */}
 
@@ -103,7 +103,9 @@ function AppRouter() {
           path="*"
           element={<Navigate to="/" replace />}
         />
+
       </Routes>
+
     </BrowserRouter>
   );
 }

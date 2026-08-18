@@ -9,14 +9,11 @@ function Signup() {
 
     const role = e.target.role.value;
 
-    // Temporary frontend role storage
+    // Temporary frontend storage
     localStorage.setItem("userRole", role);
 
-    if (role === "ADMIN") {
-      navigate("/admin");
-    } else {
-      navigate("/events");
-    }
+    // After successful signup, go to Login page
+    navigate("/login");
   };
 
   return (
@@ -27,7 +24,7 @@ function Signup() {
         <p>Join EventHub and discover amazing events</p>
 
         <form onSubmit={handleSignup}>
-
+          {/* Full Name */}
           <div className="form-group">
             <label>Full Name</label>
 
@@ -38,6 +35,7 @@ function Signup() {
             />
           </div>
 
+          {/* Email */}
           <div className="form-group">
             <label>Email</label>
 
@@ -48,6 +46,20 @@ function Signup() {
             />
           </div>
 
+          {/* Phone Number */}
+          <div className="form-group">
+            <label>Phone Number</label>
+
+            <input
+              type="tel"
+              placeholder="Enter your phone number"
+              pattern="[0-9]{10}"
+              maxLength="10"
+              required
+            />
+          </div>
+
+          {/* Password */}
           <div className="form-group">
             <label>Password</label>
 
@@ -58,6 +70,7 @@ function Signup() {
             />
           </div>
 
+          {/* Confirm Password */}
           <div className="form-group">
             <label>Confirm Password</label>
 
@@ -79,15 +92,16 @@ function Signup() {
             </select>
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
             className="signup-submit"
           >
             Create Account
           </button>
-
         </form>
 
+        {/* Login Link */}
         <p className="login-text">
           Already have an account?{" "}
           <Link to="/login">Login</Link>
