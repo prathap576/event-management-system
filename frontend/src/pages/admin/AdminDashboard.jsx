@@ -1,22 +1,11 @@
-import {
-  Link,
-} from "react-router-dom";
-
-import {
-  useAdmin,
-} from "../../context/AdminContext";
-
-import {
-  getEventStatus,
-} from "../../utils/eventUtils";
+import { Link } from "react-router-dom";
+import { useAdmin } from "../../context/AdminContext";
+import { getEventStatus } from "../../utils/eventUtils";
 
 import AdminSidebar from "../../components/admin/AdminSidebar";
-
 import StatCard from "../../components/admin/StatCard";
 
-
 function AdminDashboard() {
-
   const {
     admin,
     events,
@@ -24,52 +13,35 @@ function AdminDashboard() {
     statistics,
   } = useAdmin();
 
-
   // Latest events
-  const recentEvents =
-    [...events]
-      .sort(
-        (a, b) =>
-          new Date(
-            b.createdAt
-          ) -
-          new Date(
-            a.createdAt
-          )
-      )
-      .slice(0, 5);
-
+  const recentEvents = [...events]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt) -
+        new Date(a.createdAt)
+    )
+    .slice(0, 5);
 
   // Latest registrations
-  const recentRegistrations =
-    [...registrations]
-      .sort(
-        (a, b) =>
-          new Date(
-            b.registeredAt
-          ) -
-          new Date(
-            a.registeredAt
-          )
-      )
-      .slice(0, 4);
-
+  const recentRegistrations = [...registrations]
+    .sort(
+      (a, b) =>
+        new Date(b.registeredAt) -
+        new Date(a.registeredAt)
+    )
+    .slice(0, 4);
 
   return (
-
     <div className="admin-layout">
 
       <AdminSidebar />
 
-
       <main className="admin-main">
 
         {/* HEADER */}
-
         <header className="dashboard-header">
 
           <div>
-
             <span className="eyebrow">
               ADMIN DASHBOARD
             </span>
@@ -80,12 +52,9 @@ function AdminDashboard() {
             </h1>
 
             <p>
-              Here's what's happening
-              with your events today.
+              Here's what's happening with your events today.
             </p>
-
           </div>
-
 
           <Link
             to="/admin/events/create"
@@ -98,44 +67,32 @@ function AdminDashboard() {
 
 
         {/* STATISTICS */}
-
         <section className="stats-grid">
 
           <StatCard
             title="Total Events"
-            value={
-              statistics.totalEvents
-            }
+            value={statistics.totalEvents}
             icon="📅"
             description="All events"
           />
 
-
           <StatCard
             title="Upcoming"
-            value={
-              statistics.upcomingEvents
-            }
+            value={statistics.upcomingEvents}
             icon="🗓️"
             description="Future events"
           />
 
-
           <StatCard
             title="Completed"
-            value={
-              statistics.completedEvents
-            }
+            value={statistics.completedEvents}
             icon="✅"
             description="Past events"
           />
 
-
           <StatCard
             title="Registrations"
-            value={
-              statistics.totalRegistrations
-            }
+            value={statistics.totalRegistrations}
             icon="👥"
             description={`${statistics.confirmedRegistrations} confirmed`}
           />
@@ -144,28 +101,20 @@ function AdminDashboard() {
 
 
         {/* DASHBOARD COLUMNS */}
-
         <div className="dashboard-columns">
 
-
           {/* RECENT EVENTS */}
-
           <section className="dashboard-card">
 
             <div className="card-header">
 
               <div>
-
-                <h2>
-                  Recent Events
-                </h2>
+                <h2>Recent Events</h2>
 
                 <p>
                   Your latest events
                 </p>
-
               </div>
-
 
               <Link
                 to="/admin/events"
@@ -179,78 +128,65 @@ function AdminDashboard() {
 
             <div className="mini-event-list">
 
-              {recentEvents.length >
-              0 ? (
+              {recentEvents.length > 0 ? (
+                recentEvents.map((event) => {
 
-                recentEvents.map(
-                  (event) => {
+                  const currentStatus =
+                    getEventStatus(event);
 
-                    const currentStatus =
-                      getEventStatus(
-                        event
-                      );
+                  return (
+                    <div
+                      className="mini-event"
+                      key={event.id}
+                    >
 
-                    return (
+                      <div className="event-date-box">
 
-                      <div
-                        className="mini-event"
-                        key={event.id}
-                      >
-
-                        <div className="event-date-box">
-
-                          <span>
-                            {new Date(
-                              event.date
-                            ).toLocaleDateString(
-                              "en-US",
-                              {
-                                month:
-                                  "short",
-                              }
-                            )}
-                          </span>
-
-                          <strong>
-                            {new Date(
-                              event.date
-                            ).getDate()}
-                          </strong>
-
-                        </div>
-
-
-                        <div className="mini-event-info">
-
-                          <h3>
-                            {event.title}
-                          </h3>
-
-                          <p>
-                            📍{" "}
+                        <span>
+                          {new Date(
+                            event.date
+                          ).toLocaleDateString(
+                            "en-US",
                             {
-                              event.location
+                              month: "short",
                             }
-                          </p>
-
-                        </div>
-
-
-                        <span
-                          className={`status-badge ${currentStatus.toLowerCase()}`}
-                        >
-                          {currentStatus}
+                          )}
                         </span>
+
+                        <strong>
+                          {new Date(
+                            event.date
+                          ).getDate()}
+                        </strong>
 
                       </div>
 
-                    );
-                  }
-                )
 
+                      <div className="mini-event-info">
+
+                        <h3>
+                          {event.title}
+                        </h3>
+
+                        <p>
+                          📍 {event.location}
+                        </p>
+
+                      </div>
+
+
+                      <span
+                        className={`status-badge ${currentStatus.toLowerCase()}`}
+                      >
+                        {currentStatus}
+                      </span>
+
+                    </div>
+                  );
+                })
               ) : (
-
                 <div className="empty-state">
+
                   <div className="empty-icon">
                     📅
                   </div>
@@ -258,8 +194,8 @@ function AdminDashboard() {
                   <p>
                     No events available.
                   </p>
-                </div>
 
+                </div>
               )}
 
             </div>
@@ -268,13 +204,11 @@ function AdminDashboard() {
 
 
           {/* RECENT REGISTRATIONS */}
-
           <section className="dashboard-card">
 
             <div className="card-header">
 
               <div>
-
                 <h2>
                   Recent Registrations
                 </h2>
@@ -282,9 +216,7 @@ function AdminDashboard() {
                 <p>
                   Latest participants
                 </p>
-
               </div>
-
 
               <Link
                 to="/admin/registrations"
@@ -300,48 +232,36 @@ function AdminDashboard() {
 
               {recentRegistrations.map(
                 (registration) => (
-
                   <div
                     className="registration-item"
-                    key={
-                      registration.id
-                    }
+                    key={registration.id}
                   >
 
                     <div className="avatar">
                       {registration.name
-                        .charAt(0)
+                        ?.charAt(0)
                         .toUpperCase()}
                     </div>
-
 
                     <div className="registration-info">
 
                       <strong>
-                        {
-                          registration.name
-                        }
+                        {registration.name}
                       </strong>
 
                       <span>
-                        {
-                          registration.eventName
-                        }
+                        {registration.eventName}
                       </span>
 
                     </div>
 
-
                     <span
                       className={`status-badge ${registration.status.toLowerCase()}`}
                     >
-                      {
-                        registration.status
-                      }
+                      {registration.status}
                     </span>
 
                   </div>
-
                 )
               )}
 
@@ -353,25 +273,20 @@ function AdminDashboard() {
 
 
         {/* QUICK ACTIONS */}
-
         <section className="quick-actions">
 
           <h2>
             Quick Actions
           </h2>
 
-
           <div className="quick-action-grid">
-
 
             <Link
               to="/admin/events/create"
               className="quick-action"
             >
 
-              <span>
-                ➕
-              </span>
+              <span>➕</span>
 
               <div>
 
@@ -393,9 +308,7 @@ function AdminDashboard() {
               className="quick-action"
             >
 
-              <span>
-                📋
-              </span>
+              <span>📋</span>
 
               <div>
 
@@ -417,9 +330,7 @@ function AdminDashboard() {
               className="quick-action"
             >
 
-              <span>
-                👥
-              </span>
+              <span>👥</span>
 
               <div>
 

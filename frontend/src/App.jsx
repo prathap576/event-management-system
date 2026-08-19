@@ -14,7 +14,6 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 function App() {
   return (
     <BrowserRouter>
-      <Navbar />
 
       <Routes>
 
@@ -22,27 +21,52 @@ function App() {
 
         <Route
           path="/"
-          element={<Home />}
+          element={
+            <>
+              <Navbar />
+              <Home />
+            </>
+          }
         />
 
         <Route
           path="/events"
-          element={<Events />}
+          element={
+            <>
+              <Navbar />
+              <Events />
+            </>
+          }
         />
 
         <Route
           path="/events/:id"
-          element={<EventDetails />}
+          element={
+            <>
+              <Navbar />
+              <EventDetails />
+            </>
+          }
         />
 
         <Route
           path="/login"
-          element={<Login />}
+          element={
+            <>
+              <Navbar />
+              <Login />
+            </>
+          }
         />
 
         <Route
           path="/signup"
-          element={<Signup />}
+          element={
+            <>
+              <Navbar />
+              <Signup />
+            </>
+          }
         />
 
 
@@ -57,8 +81,8 @@ function App() {
 
         </Route>
 
-
       </Routes>
+
     </BrowserRouter>
   );
 }
