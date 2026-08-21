@@ -111,9 +111,9 @@ function EventTable({
                         {event.title}
                       </strong>
 
-                      <span>
-                        ID #{event.id}
-                      </span>
+                      {/* <span>
+                        {event.id}
+                      </span> */}
 
                     </div>
 

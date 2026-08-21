@@ -1,69 +1,236 @@
+/* =========================================
+   EVENT CARD
+========================================= */
+
 .event-card {
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  box-shadow:
+    0 4px 12px rgba(15, 23, 42, 0.06);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  min-width: 0;
 }
 
 .event-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+
+  box-shadow:
+    0 12px 28px rgba(15, 23, 42, 0.12);
 }
 
+
+/* =========================================
+   EVENT IMAGE
+========================================= */
+
 .event-image {
-  height: 180px;
-  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  height: 145px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #60a5fa
+    );
+
   display: flex;
+
   align-items: flex-end;
-  padding: 16px;
+
+  padding: 18px;
+
+  box-sizing: border-box;
 }
 
 .event-image span {
-  background-color: #ffffff;
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+
   color: #2563eb;
-  padding: 6px 10px;
+
+  padding: 8px 13px;
+
   border-radius: 20px;
+
   font-size: 13px;
+
   font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.3px;
 }
+
+
+/* =========================================
+   CARD CONTENT
+========================================= */
 
 .event-card-content {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+
+  padding: 22px;
+
+  min-height: 285px;
+
+  box-sizing: border-box;
 }
+
+
+/* =========================================
+   TITLE
+========================================= */
 
 .event-card-content h3 {
-  margin-bottom: 12px;
-  font-size: 20px;
-  color: #111827;
+  margin: 0 0 18px;
+
+  font-size: 21px;
+
+  line-height: 1.3;
+
+  font-weight: 700;
+
+  color: #0f172a;
 }
 
-.event-date,
-.event-location {
-  margin-bottom: 8px;
-  color: #4b5563;
+
+/* =========================================
+   EVENT DETAILS
+========================================= */
+
+.event-detail {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin-bottom: 12px;
+
+  color: #475569;
+
   font-size: 14px;
+
+  line-height: 1.5;
 }
+
+.event-icon {
+  width: 20px;
+
+  flex-shrink: 0;
+
+  font-size: 16px;
+
+  text-align: center;
+}
+
+
+/* =========================================
+   DESCRIPTION
+========================================= */
 
 .event-description {
-  margin: 14px 0;
-  color: #6b7280;
-  line-height: 1.5;
+  margin: 8px 0 20px;
+
+  color: #64748b;
+
   font-size: 14px;
+
+  line-height: 1.5;
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: 2;
+
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
 }
 
+
+/* =========================================
+   VIEW EVENT BUTTON
+========================================= */
+
 .view-event-btn {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
   width: 100%;
-  padding: 10px;
+
+  min-height: 44px;
+
+  margin-top: auto;
+
+  padding: 10px 16px;
+
+  box-sizing: border-box;
+
   border: none;
-  border-radius: 6px;
-  background-color: #2563eb;
-  color: white;
-  cursor: pointer;
+
+  border-radius: 7px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
   font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .view-event-btn:hover {
-  background-color: #1d4ed8;
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 650px) {
+
+  .event-image {
+    height: 135px;
+  }
+
+  .event-card-content {
+    padding: 20px;
+
+    min-height: 270px;
+  }
+
+  .event-card-content h3 {
+    font-size: 19px;
+  }
+
 }

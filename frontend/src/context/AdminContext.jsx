@@ -7,29 +7,43 @@ import {
 } from "react";
 
 import {
-  initialEvents,
-  initialRegistrations,
-} from "../data/initialData";
-
-import {
   getEventStatus,
 } from "../utils/eventUtils";
 
+
 const AdminContext = createContext(null);
 
-const EVENTS_KEY =
-  "event_management_events";
+
+/* =========================================
+   LOCAL STORAGE KEYS
+========================================= */
 
 const REGISTRATIONS_KEY =
-  "event_management_registrations";
+  "event_management_registrations_v2";
 
 const ADMIN_KEY =
   "event_management_admin";
 
 
+/* =========================================
+   BACKEND URL
+========================================= */
+
+const API_URL =
+  "http://localhost:8080/api";
+
+
+/* =========================================
+   ADMIN PROVIDER
+========================================= */
+
 export function AdminProvider({ children }) {
 
   const [admin, setAdmin] =
+    useState(null);
+
+  // NEW: logged-in user
+  const [currentUser, setCurrentUser] =
     useState(null);
 
   const [events, setEvents] =
@@ -42,28 +56,81 @@ export function AdminProvider({ children }) {
     useState(true);
 
 
-  // ==================================================
-  // INITIAL LOAD
-  // ==================================================
+  /* =========================================
+     INITIAL LOAD
+  ========================================= */
 
   useEffect(() => {
     loadApplicationData();
   }, []);
 
 
-  const loadApplicationData = () => {
+  /* =========================================
+     LOAD APPLICATION DATA
+  ========================================= */
+
+  const loadApplicationData = async () => {
 
     try {
+
+      /* -----------------------------------------
+         STORED ADMIN
+      ----------------------------------------- */
 
       const storedAdmin =
         localStorage.getItem(
           ADMIN_KEY
         );
 
-      const storedEvents =
-        localStorage.getItem(
-          EVENTS_KEY
+
+      if (storedAdmin) {
+
+        const parsedAdmin =
+          JSON.parse(
+            storedAdmin
+          );
+
+        setAdmin(parsedAdmin);
+
+        // Also make admin the current user
+        setCurrentUser(parsedAdmin);
+
+      }
+
+
+      /* =========================================
+         LOAD EVENTS FROM SPRING BOOT
+      ========================================= */
+
+      const eventResponse =
+        await fetch(
+          `${API_URL}/events`
         );
+
+
+      if (!eventResponse.ok) {
+
+        throw new Error(
+          "Failed to fetch events"
+        );
+
+      }
+
+
+      const backendEvents =
+        await eventResponse.json();
+
+
+      setEvents(
+        Array.isArray(backendEvents)
+          ? backendEvents
+          : []
+      );
+
+
+      /* =========================================
+         STORED REGISTRATIONS
+      ========================================= */
 
       const storedRegistrations =
         localStorage.getItem(
@@ -71,69 +138,28 @@ export function AdminProvider({ children }) {
         );
 
 
-      // -----------------------------
-      // ADMIN
-      // -----------------------------
-
-      if (storedAdmin) {
-
-        setAdmin(
-          JSON.parse(storedAdmin)
-        );
-
-      }
-
-
-      // -----------------------------
-      // EVENTS
-      // -----------------------------
-
-      if (storedEvents) {
-
-        setEvents(
-          JSON.parse(storedEvents)
-        );
-
-      } else {
-
-        setEvents(initialEvents);
-
-        localStorage.setItem(
-          EVENTS_KEY,
-          JSON.stringify(
-            initialEvents
-          )
-        );
-
-      }
-
-
-      // -----------------------------
-      // REGISTRATIONS
-      // -----------------------------
-
       if (storedRegistrations) {
 
-        setRegistrations(
+        const parsedRegistrations =
           JSON.parse(
             storedRegistrations
+          );
+
+
+        setRegistrations(
+          Array.isArray(
+            parsedRegistrations
           )
+            ? parsedRegistrations
+            : []
         );
 
       } else {
 
-        setRegistrations(
-          initialRegistrations
-        );
-
-        localStorage.setItem(
-          REGISTRATIONS_KEY,
-          JSON.stringify(
-            initialRegistrations
-          )
-        );
+        setRegistrations([]);
 
       }
+
 
     } catch (error) {
 
@@ -142,83 +168,211 @@ export function AdminProvider({ children }) {
         error
       );
 
-      setEvents(
-        initialEvents
-      );
 
-      setRegistrations(
-        initialRegistrations
-      );
+      /*
+       * If backend is unavailable,
+       * keep events empty.
+       */
+
+      setEvents([]);
+
 
     } finally {
 
       setLoading(false);
 
     }
+
   };
 
 
-  // ==================================================
-  // ADMIN AUTHENTICATION
-  // ==================================================
+  /* =========================================
+     LOGIN
+     CONNECTED TO SPRING BOOT BACKEND
+     
+     Supports BOTH:
+     USER
+     ADMIN
+  ========================================= */
 
-  const loginAdmin = (
+  const loginAdmin = async (
     email,
     password
   ) => {
 
-    if (
-      email === "admin@event.com" &&
-      password === "admin123"
-    ) {
+    try {
 
-      const adminUser = {
+      const response =
+        await fetch(
+          `${API_URL}/auth/login`,
+          {
+            method: "POST",
 
-        id: 1,
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-        name: "Ashok",
+            body: JSON.stringify({
+              email,
+              password,
+            }),
+
+          }
+        );
+
+
+      /* =========================================
+         LOGIN FAILED
+      ========================================= */
+
+      if (!response.ok) {
+
+        let message =
+          "Invalid email or password.";
+
+
+        try {
+
+          const errorData =
+            await response.text();
+
+
+          if (errorData) {
+
+            message =
+              errorData;
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "Error reading login response:",
+            error
+          );
+
+        }
+
+
+        return {
+
+          success: false,
+
+          message,
+
+        };
+
+      }
+
+
+      /* =========================================
+         LOGIN SUCCESS
+      ========================================= */
+
+      const loggedInUser =
+        await response.json();
+
+
+      /* =========================================
+         CREATE USER OBJECT
+      ========================================= */
+
+      const user = {
+
+        id:
+          loggedInUser.id,
+
+        name:
+          loggedInUser.name ||
+          loggedInUser.username ||
+          loggedInUser.email,
+
+        username:
+          loggedInUser.username,
 
         email:
-          "admin@event.com",
+          loggedInUser.email,
 
-        role: "ADMIN",
+        role:
+          loggedInUser.role ||
+          "USER",
 
       };
 
 
-      setAdmin(adminUser);
+      /* =========================================
+         SAVE CURRENT USER
+      ========================================= */
+
+      setCurrentUser(user);
 
 
-      localStorage.setItem(
-        ADMIN_KEY,
-        JSON.stringify(
-          adminUser
-        )
+      /* =========================================
+         ADMIN LOGIN
+      ========================================= */
+
+      if (
+        user.role?.toUpperCase() ===
+        "ADMIN"
+      ) {
+
+        setAdmin(user);
+
+
+        localStorage.setItem(
+          ADMIN_KEY,
+          JSON.stringify(user)
+        );
+
+      }
+
+
+      /* =========================================
+         RETURN LOGIN RESULT
+      ========================================= */
+
+      return {
+
+        success: true,
+
+        user: user,
+
+      };
+
+
+    } catch (error) {
+
+      console.error(
+        "Login failed:",
+        error
       );
 
 
       return {
-        success: true,
+
+        success: false,
+
+        message:
+          "Unable to connect to the server. Please make sure the Spring Boot backend is running.",
+
       };
 
     }
 
-
-    return {
-
-      success: false,
-
-      message:
-        "Invalid admin credentials.",
-
-    };
-
   };
 
+
+  /* =========================================
+     USER / ADMIN LOGOUT
+  ========================================= */
 
   const logoutAdmin = () => {
 
     setAdmin(null);
+
+    setCurrentUser(null);
+
 
     localStorage.removeItem(
       ADMIN_KEY
@@ -227,130 +381,265 @@ export function AdminProvider({ children }) {
   };
 
 
+  /* =========================================
+     AUTHENTICATION CHECK
+  ========================================= */
+
   const isAdmin =
     admin?.role?.toUpperCase() ===
     "ADMIN";
 
 
-  // ==================================================
-  // EVENT CRUD
-  // ==================================================
+  const isAuthenticated =
+    currentUser !== null;
 
-  const createEvent = (
+
+  /* =========================================
+     CREATE EVENT
+     CONNECTED TO SPRING BOOT
+  ========================================= */
+
+  const createEvent = async (
     eventData
   ) => {
 
-    const newEvent = {
+    try {
 
-      ...eventData,
+      const response =
+        await fetch(
+          `${API_URL}/events`,
+          {
+            method: "POST",
 
-      id: Date.now(),
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-      status:
-        eventData.status ||
-        "Published",
+            body: JSON.stringify(
+              eventData
+            ),
 
-      createdAt:
-        new Date()
-          .toISOString()
-          .split("T")[0],
-
-    };
-
-
-    const updatedEvents = [
-      ...events,
-      newEvent,
-    ];
+          }
+        );
 
 
-    setEvents(
-      updatedEvents
-    );
+      if (!response.ok) {
+
+        const errorText =
+          await response.text();
 
 
-    localStorage.setItem(
-      EVENTS_KEY,
-      JSON.stringify(
-        updatedEvents
-      )
-    );
+        console.error(
+          "Create event failed:",
+          errorText
+        );
 
 
-    return newEvent;
+        throw new Error(
+          "Failed to create event"
+        );
+
+      }
+
+
+      const createdEvent =
+        await response.json();
+
+
+      /*
+       * Add backend-created event
+       * to React state.
+       */
+
+      setEvents(
+        (currentEvents) => [
+          ...currentEvents,
+          createdEvent,
+        ]
+      );
+
+
+      return createdEvent;
+
+
+    } catch (error) {
+
+      console.error(
+        "Create event error:",
+        error
+      );
+
+
+      throw error;
+
+    }
 
   };
 
 
-  const updateEvent = (
+  /* =========================================
+     UPDATE EVENT
+     CONNECTED TO SPRING BOOT
+  ========================================= */
+
+  const updateEvent = async (
     id,
     eventData
   ) => {
 
-    const updatedEvents =
-      events.map(
-        (event) =>
-          event.id ===
-          Number(id)
+    try {
 
-            ? {
-                ...event,
-                ...eventData,
-                id: event.id,
-              }
+      const response =
+        await fetch(
+          `${API_URL}/events/${id}`,
+          {
+            method: "PUT",
 
-            : event
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify(
+              eventData
+            ),
+
+          }
+        );
+
+
+      if (!response.ok) {
+
+        const errorText =
+          await response.text();
+
+
+        console.error(
+          "Update event failed:",
+          errorText
+        );
+
+
+        throw new Error(
+          "Failed to update event"
+        );
+
+      }
+
+
+      const updatedEvent =
+        await response.json();
+
+
+      /*
+       * Update React state
+       */
+
+      setEvents(
+        (currentEvents) =>
+          currentEvents.map(
+            (event) =>
+              event.id ===
+              Number(id)
+                ? updatedEvent
+                : event
+          )
       );
 
 
-    setEvents(
-      updatedEvents
-    );
+      return updatedEvent;
 
 
-    localStorage.setItem(
-      EVENTS_KEY,
-      JSON.stringify(
-        updatedEvents
-      )
-    );
+    } catch (error) {
+
+      console.error(
+        "Update event error:",
+        error
+      );
 
 
-    return updatedEvents.find(
-      (event) =>
-        event.id ===
-        Number(id)
-    );
+      throw error;
+
+    }
 
   };
 
 
-  const deleteEvent = (
+  /* =========================================
+     DELETE EVENT
+     CONNECTED TO SPRING BOOT
+  ========================================= */
+
+  const deleteEvent = async (
     id
   ) => {
 
-    const updatedEvents =
-      events.filter(
-        (event) =>
-          event.id !==
-          Number(id)
+    try {
+
+      const response =
+        await fetch(
+          `${API_URL}/events/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
+
+
+      if (!response.ok) {
+
+        const errorText =
+          await response.text();
+
+
+        console.error(
+          "Delete event failed:",
+          errorText
+        );
+
+
+        throw new Error(
+          "Failed to delete event"
+        );
+
+      }
+
+
+      /*
+       * Remove from React state
+       */
+
+      setEvents(
+        (currentEvents) =>
+          currentEvents.filter(
+            (event) =>
+              event.id !==
+              Number(id)
+          )
       );
 
 
-    setEvents(
-      updatedEvents
-    );
+      return true;
 
 
-    localStorage.setItem(
-      EVENTS_KEY,
-      JSON.stringify(
-        updatedEvents
-      )
-    );
+    } catch (error) {
+
+      console.error(
+        "Delete event error:",
+        error
+      );
+
+
+      throw error;
+
+    }
 
   };
 
+
+  /* =========================================
+     GET EVENT BY ID
+  ========================================= */
 
   const getEventById = (
     id
@@ -365,9 +654,9 @@ export function AdminProvider({ children }) {
   };
 
 
-  // ==================================================
-  // REGISTRATION MANAGEMENT
-  // ==================================================
+  /* =========================================
+     REGISTRATION MANAGEMENT
+  ========================================= */
 
   const updateRegistrationStatus = (
     registrationId,
@@ -405,138 +694,132 @@ export function AdminProvider({ children }) {
   };
 
 
-  // ==================================================
-  // RESET DEMO DATA
-  // ==================================================
+  /* =========================================
+     CLEAR DATA
+  ========================================= */
 
   const resetDemoData = () => {
 
-    setEvents(
-      initialEvents
-    );
+    /*
+     * Events are stored in MySQL now,
+     * so this function only clears
+     * local registration data.
+     */
 
-    setRegistrations(
-      initialRegistrations
-    );
-
-
-    localStorage.setItem(
-      EVENTS_KEY,
-      JSON.stringify(
-        initialEvents
-      )
-    );
+    setRegistrations([]);
 
 
     localStorage.setItem(
       REGISTRATIONS_KEY,
-      JSON.stringify(
-        initialRegistrations
-      )
+      JSON.stringify([])
     );
 
   };
 
 
-  // ==================================================
-  // DASHBOARD STATISTICS
-  // ==================================================
+  /* =========================================
+     DASHBOARD STATISTICS
+  ========================================= */
 
-  const statistics = useMemo(() => {
+  const statistics =
+    useMemo(() => {
 
-    const upcomingEvents =
-      events.filter(
-        (event) =>
-          getEventStatus(event) ===
-          "Upcoming"
-      ).length;
-
-
-    const completedEvents =
-      events.filter(
-        (event) =>
-          getEventStatus(event) ===
-          "Completed"
-      ).length;
+      const upcomingEvents =
+        events.filter(
+          (event) =>
+            getEventStatus(event) ===
+            "Upcoming"
+        ).length;
 
 
-    const draftEvents =
-      events.filter(
-        (event) =>
-          getEventStatus(event) ===
-          "Draft"
-      ).length;
+      const completedEvents =
+        events.filter(
+          (event) =>
+            getEventStatus(event) ===
+            "Completed"
+        ).length;
 
 
-    const publishedEvents =
-      events.filter(
-        (event) =>
-          event.status ===
-          "Published"
-      ).length;
+      const draftEvents =
+        events.filter(
+          (event) =>
+            getEventStatus(event) ===
+            "Draft"
+        ).length;
 
 
-    const confirmedRegistrations =
-      registrations.filter(
-        (registration) =>
-          registration.status ===
-          "Confirmed"
-      ).length;
+      const publishedEvents =
+        events.filter(
+          (event) =>
+            event.status ===
+            "Published"
+        ).length;
 
 
-    const pendingRegistrations =
-      registrations.filter(
-        (registration) =>
-          registration.status ===
-          "Pending"
-      ).length;
+      const confirmedRegistrations =
+        registrations.filter(
+          (registration) =>
+            registration.status ===
+            "Confirmed"
+        ).length;
 
 
-    const cancelledRegistrations =
-      registrations.filter(
-        (registration) =>
-          registration.status ===
-          "Cancelled"
-      ).length;
+      const pendingRegistrations =
+        registrations.filter(
+          (registration) =>
+            registration.status ===
+            "Pending"
+        ).length;
 
 
-    return {
-
-      totalEvents:
-        events.length,
-
-      upcomingEvents,
-
-      completedEvents,
-
-      draftEvents,
-
-      publishedEvents,
-
-      totalRegistrations:
-        registrations.length,
-
-      confirmedRegistrations,
-
-      pendingRegistrations,
-
-      cancelledRegistrations,
-
-    };
-
-  }, [
-    events,
-    registrations,
-  ]);
+      const cancelledRegistrations =
+        registrations.filter(
+          (registration) =>
+            registration.status ===
+            "Cancelled"
+        ).length;
 
 
-  // ==================================================
-  // CONTEXT VALUE
-  // ==================================================
+      return {
+
+        totalEvents:
+          events.length,
+
+        upcomingEvents,
+
+        completedEvents,
+
+        draftEvents,
+
+        publishedEvents,
+
+        totalRegistrations:
+          registrations.length,
+
+        confirmedRegistrations,
+
+        pendingRegistrations,
+
+        cancelledRegistrations,
+
+      };
+
+    }, [
+      events,
+      registrations,
+    ]);
+
+
+  /* =========================================
+     CONTEXT VALUE
+  ========================================= */
 
   const value = {
 
-    // Admin
+    /* -----------------------------------------
+       ADMIN
+    ----------------------------------------- */
+
     admin,
 
     isAdmin,
@@ -544,7 +827,19 @@ export function AdminProvider({ children }) {
     loading,
 
 
-    // Events
+    /* -----------------------------------------
+       CURRENT USER
+    ----------------------------------------- */
+
+    currentUser,
+
+    isAuthenticated,
+
+
+    /* -----------------------------------------
+       EVENTS
+    ----------------------------------------- */
+
     events,
 
     createEvent,
@@ -556,46 +851,62 @@ export function AdminProvider({ children }) {
     getEventById,
 
 
-    // Registrations
+    /* -----------------------------------------
+       REGISTRATIONS
+    ----------------------------------------- */
+
     registrations,
 
     updateRegistrationStatus,
 
 
-    // Statistics
+    /* -----------------------------------------
+       STATISTICS
+    ----------------------------------------- */
+
     statistics,
 
 
-    // Authentication
+    /* -----------------------------------------
+       AUTHENTICATION
+    ----------------------------------------- */
+
     loginAdmin,
 
     logoutAdmin,
 
 
-    // Demo
+    /* -----------------------------------------
+       DATA RESET
+    ----------------------------------------- */
+
     resetDemoData,
 
   };
 
 
-  // ==================================================
-  // PROVIDER
-  // ==================================================
+  /* =========================================
+     PROVIDER
+  ========================================= */
 
   return (
+
     <AdminContext.Provider
       value={value}
     >
+
       {children}
+
     </AdminContext.Provider>
+
   );
 
 }
 
 
-// ====================================================
-// useAdmin HOOK
-// ====================================================
+/* =========================================
+   useAdmin HOOK
+========================================= */
 
 export function useAdmin() {
 

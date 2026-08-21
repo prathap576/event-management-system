@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState,
 } from "react";
 
@@ -6,13 +7,9 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import {
-  useAdmin,
-} from "../../context/AdminContext";
-
 import AdminSidebar from "../../components/admin/AdminSidebar";
 
-import EventForm from "../../components/admin/EventForm";
+import EventForm from "../../components/Admin/EventForm";
 
 
 function CreateEvent() {
@@ -20,47 +17,142 @@ function CreateEvent() {
   const navigate =
     useNavigate();
 
-  const {
-    createEvent,
-  } = useAdmin();
 
+  // =========================================
+  // SCROLL TO TOP WHEN PAGE OPENS
+  // =========================================
+
+  useEffect(() => {
+
+    window.scrollTo(0, 0);
+
+  }, []);
+
+
+  // =========================================
+  // LOADING STATE
+  // =========================================
 
   const [loading, setLoading] =
     useState(false);
 
 
-  const handleCreate = (
+  // =========================================
+  // CREATE EVENT
+  // =========================================
+
+  const handleCreate = async (
     eventData
   ) => {
 
     setLoading(true);
 
+    try {
 
-    setTimeout(() => {
+      const response =
+        await fetch(
+          "http://localhost:8080/api/events",
+          {
+            method: "POST",
 
-      createEvent(
-        eventData
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(eventData),
+          }
+        );
+
+
+      // =========================================
+      // HANDLE ERROR
+      // =========================================
+
+      if (!response.ok) {
+
+        const error =
+          await response.text();
+
+        console.error(
+          "Create event failed:",
+          error
+        );
+
+        alert(
+          "Failed to create event."
+        );
+
+        return;
+      }
+
+
+      // =========================================
+      // SUCCESS RESPONSE
+      // =========================================
+
+      const createdEvent =
+        await response.json();
+
+
+      console.log(
+        "Event created successfully:",
+        createdEvent
       );
 
-      setLoading(false);
+
+      alert(
+        "Event created successfully!"
+      );
+
+
+      // =========================================
+      // GO TO MANAGE EVENTS
+      // =========================================
 
       navigate(
         "/admin/events"
       );
 
-    }, 500);
+    } catch (error) {
+
+      console.error(
+        "Error creating event:",
+        error
+      );
+
+      alert(
+        "Unable to connect to backend."
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
 
   };
 
+
+  // =========================================
+  // UI
+  // =========================================
 
   return (
 
     <div className="admin-layout">
 
+      {/* SIDEBAR */}
+
       <AdminSidebar />
 
 
+      {/* MAIN CONTENT */}
+
       <main className="admin-main">
+
+        {/* PAGE HEADER */}
 
         <div className="page-heading">
 
@@ -80,6 +172,8 @@ function CreateEvent() {
         </div>
 
 
+        {/* EVENT FORM */}
+
         <EventForm
           onSubmit={handleCreate}
           submitText="Create Event"
@@ -89,7 +183,9 @@ function CreateEvent() {
       </main>
 
     </div>
+
   );
 }
+
 
 export default CreateEvent;

@@ -1,62 +1,227 @@
 .navbar {
+  height: 74px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 40px;
-  background-color: #ffffff;
+
+  padding: 0 40px;
+
+  background: #ffffff;
+
   border-bottom: 1px solid #e5e7eb;
+
+  position: sticky;
+  top: 0;
+
+  z-index: 1000;
 }
 
+
+/* =========================
+   LOGO
+========================= */
+
 .navbar-logo {
-  font-size: 24px;
-  font-weight: 700;
   color: #2563eb;
+
+  font-size: 25px;
+
+  font-weight: 800;
+
+  text-decoration: none;
+
+  letter-spacing: -0.5px;
 }
+
+
+/* =========================
+   NAV LINKS
+========================= */
 
 .navbar-links {
   display: flex;
-  gap: 30px;
+
+  align-items: center;
+
+  gap: 32px;
+
+  margin-left: auto;
+
+  margin-right: 35px;
 }
 
 .navbar-links a {
+  color: #374151;
+
   text-decoration: none;
-  color: #333333;
-  font-size: 16px;
+
+  font-size: 15px;
+
+  font-weight: 500;
+
+  transition: 0.2s ease;
 }
 
 .navbar-links a:hover {
   color: #2563eb;
 }
 
+
+/* =========================
+   ACTIONS
+========================= */
+
 .navbar-actions {
   display: flex;
+
+  align-items: center;
+
   gap: 12px;
 }
 
-.login-btn,
-.signup-btn {
-  padding: 9px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
+
+/* LOGIN */
 
 .login-btn {
-  background-color: white;
+  padding: 10px 21px;
+
   border: 1px solid #2563eb;
+
+  border-radius: 7px;
+
   color: #2563eb;
+
   text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition: 0.2s ease;
 }
+
+.login-btn:hover {
+  background: #eff6ff;
+}
+
+
+/* SIGNUP */
 
 .signup-btn {
-  background-color: #2563eb;
-  border: 1px solid #2563eb;
+  padding: 10px 21px;
+
+  border-radius: 7px;
+
+  background: #2563eb;
+
   color: white;
+
   text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition: 0.2s ease;
 }
 
-.login-btn:hover,
 .signup-btn:hover {
-  opacity: 0.85;
- 
+  background: #1d4ed8;
+}
+
+
+/* USERNAME */
+
+.navbar-username {
+  color: #374151;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  margin-right: 4px;
+}
+
+
+/* LOGOUT */
+
+.logout-btn {
+  padding: 9px 18px;
+
+  border: 1px solid #dc2626;
+
+  border-radius: 7px;
+
+  background: white;
+
+  color: #dc2626;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+
+  color: white;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 800px) {
+
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .navbar-links {
+    gap: 15px;
+
+    margin-right: 15px;
+  }
+
+  .navbar-links a {
+    font-size: 13px;
+  }
+
+  .navbar-username {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .navbar {
+    height: auto;
+
+    min-height: 70px;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+    padding: 15px 20px;
+  }
+
+  .navbar-links {
+    order: 3;
+
+    width: 100%;
+
+    justify-content: center;
+
+    margin: 0;
+  }
+
 }

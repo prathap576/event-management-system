@@ -1,350 +1,394 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAdmin } from "../../context/AdminContext";
-import { getEventStatus } from "../../utils/eventUtils";
-
-import AdminSidebar from "../../components/admin/AdminSidebar";
-import StatCard from "../../components/admin/StatCard";
+import "./AdminDashboard.css";
 
 function AdminDashboard() {
-  const {
-    admin,
-    events,
-    registrations,
-    statistics,
-  } = useAdmin();
+  const [events, setEvents] = useState([]);
+  const [registrations, setRegistrations] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Latest events
-  const recentEvents = [...events]
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt) -
-        new Date(a.createdAt)
-    )
-    .slice(0, 5);
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [eventsResponse, registrationsResponse] = await Promise.all([
+          fetch("http://localhost:8080/api/events"),
+          fetch("http://localhost:8080/api/registrations"),
+        ]);
 
-  // Latest registrations
-  const recentRegistrations = [...registrations]
-    .sort(
-      (a, b) =>
-        new Date(b.registeredAt) -
-        new Date(a.registeredAt)
-    )
-    .slice(0, 4);
+        if (!eventsResponse.ok) {
+          throw new Error("Failed to fetch events");
+        }
+
+        if (!registrationsResponse.ok) {
+          throw new Error("Failed to fetch registrations");
+        }
+
+        const eventsData = await eventsResponse.json();
+        const registrationsData = await registrationsResponse.json();
+
+        setEvents(eventsData);
+        setRegistrations(registrationsData);
+      } catch (error) {
+        console.error("Dashboard error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Current date
+  const today = new Date();
+
+  // Upcoming events
+  const upcomingEvents = events.filter((event) => {
+    if (!event.date) return false;
+
+    const eventDate = new Date(event.date);
+    return eventDate >= today;
+  });
+
+  // Completed events
+  const completedEvents = events.filter((event) => {
+    if (!event.date) return false;
+
+    const eventDate = new Date(event.date);
+    return eventDate < today;
+  });
+
+  // Recent events - latest first
+  const recentEvents = [...events].sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+    }).toUpperCase();
+  };
+
+  // Event status
+  const getEventStatus = (event) => {
+    if (!event.date) return "Upcoming";
+
+    const eventDate = new Date(event.date);
+
+    if (eventDate < today) {
+      return "Completed";
+    }
+
+    return "Upcoming";
+  };
+
+  if (loading) {
+    return (
+      <div className="admin-dashboard-page">
+        <div className="dashboard-loading">
+          Loading dashboard...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-layout">
+    <div className="admin-dashboard-page">
 
-      <AdminSidebar />
+      {/* Sidebar */}
+      <aside className="admin-sidebar">
 
-      <main className="admin-main">
-
-        {/* HEADER */}
-        <header className="dashboard-header">
+        <div className="admin-profile">
+          <div className="admin-avatar">
+            A
+          </div>
 
           <div>
-            <span className="eyebrow">
-              ADMIN DASHBOARD
+            <h3>Ashok</h3>
+            <p>Event Organizer</p>
+          </div>
+        </div>
+
+        <div className="sidebar-title">
+          MAIN MENU
+        </div>
+
+        <nav className="admin-menu">
+
+          <Link
+            to="/admin"
+            className="admin-menu-item active"
+          >
+            <span>▦</span>
+            Dashboard
+          </Link>
+
+          <Link
+            to="/admin/events"
+            className="admin-menu-item"
+          >
+            <span>⊡</span>
+            Manage Events
+          </Link>
+
+          <Link
+            to="/admin/events/create"
+            className="admin-menu-item"
+          >
+            <span>＋</span>
+            Create Event
+          </Link>
+
+          <Link
+            to="/admin/registrations"
+            className="admin-menu-item"
+          >
+            <span>♙</span>
+            Registrations
+          </Link>
+
+        </nav>
+
+        <div className="sidebar-bottom">
+
+          <button
+            className="logout-btn"
+            onClick={() => {
+              localStorage.clear();
+              window.location.href = "/login";
+            }}
+          >
+            <span>↪</span>
+            Logout
+          </button>
+
+        </div>
+
+      </aside>
+
+
+      {/* Main Content */}
+      <main className="admin-main">
+
+        {/* Header */}
+        <section className="admin-header">
+
+          <div>
+            <span className="admin-label">
+              EVENT ORGANIZER DASHBOARD
             </span>
 
             <h1>
-              Good to see you,{" "}
-              {admin?.name || "Admin"} 👋
+              Welcome back, Ashok 👋
             </h1>
 
             <p>
-              Here's what's happening with your events today.
+              Manage your events and monitor your event activities from one place.
             </p>
           </div>
 
           <Link
             to="/admin/events/create"
-            className="primary-button"
+            className="create-event-btn"
           >
             + Create Event
           </Link>
 
-        </header>
+        </section>
 
 
-        {/* STATISTICS */}
+        {/* Statistics */}
         <section className="stats-grid">
 
-          <StatCard
-            title="Total Events"
-            value={statistics.totalEvents}
-            icon="📅"
-            description="All events"
-          />
+          {/* Total Events */}
+          <div className="stat-card">
 
-          <StatCard
-            title="Upcoming"
-            value={statistics.upcomingEvents}
-            icon="🗓️"
-            description="Future events"
-          />
+            <div className="stat-top">
+              <span className="stat-title">
+                Total Events
+              </span>
 
-          <StatCard
-            title="Completed"
-            value={statistics.completedEvents}
-            icon="✅"
-            description="Past events"
-          />
+              <div className="stat-icon">
+                ▣
+              </div>
+            </div>
 
-          <StatCard
-            title="Registrations"
-            value={statistics.totalRegistrations}
-            icon="👥"
-            description={`${statistics.confirmedRegistrations} confirmed`}
-          />
+            <h2>
+              {events.length}
+            </h2>
+
+            <p>
+              All created events
+            </p>
+
+          </div>
+
+
+          {/* Upcoming */}
+          <div className="stat-card">
+
+            <div className="stat-top">
+              <span className="stat-title">
+                Upcoming Events
+              </span>
+
+              <div className="stat-icon">
+                ◷
+              </div>
+            </div>
+
+            <h2>
+              {upcomingEvents.length}
+            </h2>
+
+            <p>
+              Scheduled events
+            </p>
+
+          </div>
+
+
+          {/* Completed */}
+          <div className="stat-card">
+
+            <div className="stat-top">
+              <span className="stat-title">
+                Completed Events
+              </span>
+
+              <div className="stat-icon">
+                ✓
+              </div>
+            </div>
+
+            <h2>
+              {completedEvents.length}
+            </h2>
+
+            <p>
+              Finished events
+            </p>
+
+          </div>
+
+
+          {/* Registrations */}
+          <div className="stat-card">
+
+            <div className="stat-top">
+              <span className="stat-title">
+                Registrations
+              </span>
+
+              <div className="stat-icon">
+                ♙
+              </div>
+            </div>
+
+            <h2>
+              {registrations.length}
+            </h2>
+
+            <p>
+              Event participants
+            </p>
+
+          </div>
 
         </section>
 
 
-        {/* DASHBOARD COLUMNS */}
-        <div className="dashboard-columns">
+        {/* Recent Events */}
+        <section className="recent-events-card">
 
-          {/* RECENT EVENTS */}
-          <section className="dashboard-card">
+          <div className="recent-header">
 
-            <div className="card-header">
+            <div>
+              <h2>
+                Recent Events
+              </h2>
 
-              <div>
-                <h2>Recent Events</h2>
-
-                <p>
-                  Your latest events
-                </p>
-              </div>
-
-              <Link
-                to="/admin/events"
-                className="text-button"
-              >
-                View All →
-              </Link>
-
+              <p>
+                Events created in your event management system
+              </p>
             </div>
-
-
-            <div className="mini-event-list">
-
-              {recentEvents.length > 0 ? (
-                recentEvents.map((event) => {
-
-                  const currentStatus =
-                    getEventStatus(event);
-
-                  return (
-                    <div
-                      className="mini-event"
-                      key={event.id}
-                    >
-
-                      <div className="event-date-box">
-
-                        <span>
-                          {new Date(
-                            event.date
-                          ).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "short",
-                            }
-                          )}
-                        </span>
-
-                        <strong>
-                          {new Date(
-                            event.date
-                          ).getDate()}
-                        </strong>
-
-                      </div>
-
-
-                      <div className="mini-event-info">
-
-                        <h3>
-                          {event.title}
-                        </h3>
-
-                        <p>
-                          📍 {event.location}
-                        </p>
-
-                      </div>
-
-
-                      <span
-                        className={`status-badge ${currentStatus.toLowerCase()}`}
-                      >
-                        {currentStatus}
-                      </span>
-
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="empty-state">
-
-                  <div className="empty-icon">
-                    📅
-                  </div>
-
-                  <p>
-                    No events available.
-                  </p>
-
-                </div>
-              )}
-
-            </div>
-
-          </section>
-
-
-          {/* RECENT REGISTRATIONS */}
-          <section className="dashboard-card">
-
-            <div className="card-header">
-
-              <div>
-                <h2>
-                  Recent Registrations
-                </h2>
-
-                <p>
-                  Latest participants
-                </p>
-              </div>
-
-              <Link
-                to="/admin/registrations"
-                className="text-button"
-              >
-                View All →
-              </Link>
-
-            </div>
-
-
-            <div className="registration-list">
-
-              {recentRegistrations.map(
-                (registration) => (
-                  <div
-                    className="registration-item"
-                    key={registration.id}
-                  >
-
-                    <div className="avatar">
-                      {registration.name
-                        ?.charAt(0)
-                        .toUpperCase()}
-                    </div>
-
-                    <div className="registration-info">
-
-                      <strong>
-                        {registration.name}
-                      </strong>
-
-                      <span>
-                        {registration.eventName}
-                      </span>
-
-                    </div>
-
-                    <span
-                      className={`status-badge ${registration.status.toLowerCase()}`}
-                    >
-                      {registration.status}
-                    </span>
-
-                  </div>
-                )
-              )}
-
-            </div>
-
-          </section>
-
-        </div>
-
-
-        {/* QUICK ACTIONS */}
-        <section className="quick-actions">
-
-          <h2>
-            Quick Actions
-          </h2>
-
-          <div className="quick-action-grid">
-
-            <Link
-              to="/admin/events/create"
-              className="quick-action"
-            >
-
-              <span>➕</span>
-
-              <div>
-
-                <strong>
-                  Create Event
-                </strong>
-
-                <small>
-                  Add a new event
-                </small>
-
-              </div>
-
-            </Link>
-
 
             <Link
               to="/admin/events"
-              className="quick-action"
+              className="view-all-link"
             >
-
-              <span>📋</span>
-
-              <div>
-
-                <strong>
-                  Manage Events
-                </strong>
-
-                <small>
-                  Edit or delete events
-                </small>
-
-              </div>
-
+              View All →
             </Link>
 
+          </div>
 
-            <Link
-              to="/admin/registrations"
-              className="quick-action"
-            >
 
-              <span>👥</span>
+          <div className="recent-events-list">
 
-              <div>
+            {recentEvents.length === 0 ? (
 
-                <strong>
-                  Registrations
-                </strong>
-
-                <small>
-                  View participants
-                </small>
-
+              <div className="empty-events">
+                No events available.
               </div>
 
-            </Link>
+            ) : (
+
+              recentEvents.slice(0, 5).map((event) => (
+
+                <div
+                  className="recent-event-item"
+                  key={event.id}
+                >
+
+                  {/* Date */}
+                  <div className="event-date-box">
+
+                    <span>
+                      {formatDate(event.date).split(" ")[0]}
+                    </span>
+
+                    <strong>
+                      {formatDate(event.date).split(" ")[1]}
+                    </strong>
+
+                  </div>
+
+
+                  {/* Event Details */}
+                  <div className="recent-event-info">
+
+                    <h3>
+                      {event.title}
+                    </h3>
+
+                    <p>
+                      📍 {event.location || "Location not specified"}
+                    </p>
+
+                  </div>
+
+
+                  {/* Status */}
+                  <span
+                    className={
+                      getEventStatus(event) === "Completed"
+                        ? "event-status completed"
+                        : "event-status upcoming"
+                    }
+                  >
+                    {getEventStatus(event)}
+                  </span>
+
+                </div>
+
+              ))
+
+            )}
 
           </div>
 

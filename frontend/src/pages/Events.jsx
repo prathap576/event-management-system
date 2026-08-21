@@ -1,13 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Events.css";
 import EventCard from "../components/EventCard/EventCard";
-import events from "../data/events";
 
 function Events() {
+  const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Get unique categories from events
+  // Fetch events from backend
+  useEffect(() => {
+    fetch("http://localhost:8080/api/events")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch events");
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        setEvents(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching events:", error);
+        setError("Unable to load events.");
+        setLoading(false);
+      });
+  }, []);
+
+  // Get unique categories
   const categories = [
     "All",
     ...new Set(events.map((event) => event.category)),
@@ -15,10 +38,12 @@ function Events() {
 
   // Filter events
   const filteredEvents = events.filter((event) => {
+    const search = searchTerm.toLowerCase();
+
     const matchesSearch =
-      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchTerm.toLowerCase());
+      event.title?.toLowerCase().includes(search) ||
+      event.description?.toLowerCase().includes(search) ||
+      event.location?.toLowerCase().includes(search);
 
     const matchesCategory =
       selectedCategory === "All" ||
@@ -27,8 +52,31 @@ function Events() {
     return matchesSearch && matchesCategory;
   });
 
+  if (loading) {
+    return (
+      <main className="events-page">
+        <section className="events-header">
+          <h1>All Events</h1>
+          <p>Loading events...</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="events-page">
+        <section className="events-header">
+          <h1>All Events</h1>
+          <p>{error}</p>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="events-page">
+
       {/* Page Header */}
       <section className="events-header">
         <h1>All Events</h1>
@@ -37,6 +85,7 @@ function Events() {
 
       {/* Search and Filter */}
       <section className="events-controls">
+
         <input
           type="text"
           placeholder="Search events..."
@@ -46,34 +95,51 @@ function Events() {
 
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+          onChange={(e) =>
+            setSelectedCategory(e.target.value)
+          }
         >
           {categories.map((category) => (
-            <option key={category} value={category}>
+            <option
+              key={category}
+              value={category}
+            >
               {category}
             </option>
           ))}
         </select>
+
       </section>
 
       {/* Events */}
       <section className="events-list">
+
         {filteredEvents.length > 0 ? (
+
           <div className="events-grid">
+
             {filteredEvents.map((event) => (
               <EventCard
                 key={event.id}
                 event={event}
               />
             ))}
+
           </div>
+
         ) : (
+
           <div className="no-events">
             <h2>No events found</h2>
-            <p>Try a different search or category.</p>
+            <p>
+              There are no events available right now.
+            </p>
           </div>
+
         )}
+
       </section>
+
     </main>
   );
 }

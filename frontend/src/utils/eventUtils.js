@@ -1,35 +1,67 @@
 export function getEventStatus(event) {
-
+  // -----------------------------------------
+  // DRAFT EVENT
+  // -----------------------------------------
   if (event.status === "Draft") {
     return "Draft";
   }
 
-  const today = new Date();
+  // -----------------------------------------
+  // GET EVENT DATE
+  // -----------------------------------------
+  const dateValue =
+    event.date ||
+    event.eventDate ||
+    event.startDate ||
+    "";
 
-  today.setHours(
-    0,
-    0,
-    0,
-    0
-  );
+  // If date is missing
+  if (!dateValue) {
+    return "Upcoming";
+  }
 
-  const eventDate =
-    new Date(event.date);
+  // -----------------------------------------
+  // GET EVENT DATE + TIME
+  // -----------------------------------------
+  let eventDateTime;
 
-  eventDate.setHours(
-    0,
-    0,
-    0,
-    0
-  );
+  if (event.time) {
+    eventDateTime = new Date(
+      `${dateValue}T${event.time}`
+    );
+  } else {
+    eventDateTime = new Date(dateValue);
+  }
 
-  if (eventDate < today) {
+  // -----------------------------------------
+  // INVALID DATE
+  // -----------------------------------------
+  if (isNaN(eventDateTime.getTime())) {
+    return "Upcoming";
+  }
+
+  // -----------------------------------------
+  // CURRENT DATE + TIME
+  // -----------------------------------------
+  const now = new Date();
+
+  // -----------------------------------------
+  // COMPLETED
+  // -----------------------------------------
+  if (eventDateTime < now) {
     return "Completed";
   }
 
+  // -----------------------------------------
+  // UPCOMING
+  // -----------------------------------------
   return "Upcoming";
 }
 
+
+// =========================================
+// CHECK UPCOMING
+// =========================================
 
 export function isUpcoming(event) {
   return (
@@ -39,6 +71,10 @@ export function isUpcoming(event) {
 }
 
 
+// =========================================
+// CHECK COMPLETED
+// =========================================
+
 export function isCompleted(event) {
   return (
     getEventStatus(event) ===
@@ -47,6 +83,10 @@ export function isCompleted(event) {
 }
 
 
+// =========================================
+// CHECK DRAFT
+// =========================================
+
 export function isDraft(event) {
   return (
     getEventStatus(event) ===
@@ -54,6 +94,10 @@ export function isDraft(event) {
   );
 }
 
+
+// =========================================
+// STATUS CSS CLASS
+// =========================================
 
 export function getStatusClass(status) {
   return status.toLowerCase();

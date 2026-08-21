@@ -1,94 +1,63 @@
-import {
-  NavLink,
-  useNavigate,
-} from "react-router-dom";
-
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAdmin } from "../../context/AdminContext";
+import "./AdminSidebar.css";
 
 function AdminSidebar() {
+  const { admin, logoutAdmin } = useAdmin();
   const navigate = useNavigate();
 
-  const {
-    admin,
-    logoutAdmin,
-    resetDemoData,
-  } = useAdmin();
-
   const handleLogout = () => {
+    // Clear both authentication entries
     logoutAdmin();
 
-    navigate("/admin-login");
+    localStorage.removeItem("loggedInUser");
+
+    // Go back to login page
+    navigate("/login", { replace: true });
   };
 
-  const handleReset = () => {
-    const confirmed = window.confirm(
-      "Reset all demo events and registrations?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    resetDemoData();
-
-    window.location.reload();
-  };
+  const organizerName =
+    admin?.name || "Event Organizer";
 
   return (
     <aside className="admin-sidebar">
 
-      {/* BRAND */}
+      {/* ================= BRAND ================= */}
 
-      <div className="sidebar-brand">
 
-        <div className="brand-logo">
-          EM
+      {/* ================= ORGANIZER PROFILE ================= */}
+
+      <div className="organizer-profile">
+
+        <div className="organizer-avatar">
+          {organizerName.charAt(0).toUpperCase()}
         </div>
 
-        <div>
+        <div className="organizer-info">
+
           <strong>
-            EventManager
+            {organizerName}
           </strong>
 
           <span>
-            Admin Panel
+            Event Organizer
           </span>
+
         </div>
 
       </div>
 
 
-      {/* ADMIN USER */}
+      {/* ================= MAIN NAVIGATION ================= */}
 
-      <div className="sidebar-user">
+      <nav className="sidebar-navigation">
 
-        <div className="sidebar-avatar">
-          {admin?.name
-            ?.charAt(0)
-            .toUpperCase() || "A"}
-        </div>
-
-        <div>
-          <strong>
-            {admin?.name || "Admin"}
-          </strong>
-
-          <span>
-            Administrator
-          </span>
-        </div>
-
-      </div>
-
-
-      {/* NAVIGATION */}
-
-      <nav className="sidebar-nav">
-
-        <span className="sidebar-section-title">
+        <p className="navigation-title">
           MAIN MENU
-        </span>
+        </p>
 
+
+        {/* ================= DASHBOARD ================= */}
 
         <NavLink
           to="/admin"
@@ -99,23 +68,42 @@ function AdminSidebar() {
             }`
           }
         >
-          <span>📊</span>
-          <span>Dashboard</span>
+
+          <span className="sidebar-icon">
+            ▦
+          </span>
+
+          <span>
+            Dashboard
+          </span>
+
         </NavLink>
 
 
+        {/* ================= MANAGE EVENTS ================= */}
+
         <NavLink
           to="/admin/events"
+          end
           className={({ isActive }) =>
             `sidebar-link ${
               isActive ? "active" : ""
             }`
           }
         >
-          <span>📅</span>
-          <span>Manage Events</span>
+
+          <span className="sidebar-icon">
+            ▣
+          </span>
+
+          <span>
+            Manage Events
+          </span>
+
         </NavLink>
 
+
+        {/* ================= CREATE EVENT ================= */}
 
         <NavLink
           to="/admin/events/create"
@@ -125,10 +113,19 @@ function AdminSidebar() {
             }`
           }
         >
-          <span>➕</span>
-          <span>Create Event</span>
+
+          <span className="sidebar-icon">
+            ＋
+          </span>
+
+          <span>
+            Create Event
+          </span>
+
         </NavLink>
 
+
+        {/* ================= REGISTRATIONS ================= */}
 
         <NavLink
           to="/admin/registrations"
@@ -138,50 +135,38 @@ function AdminSidebar() {
             }`
           }
         >
-          <span>👥</span>
-          <span>Registrations</span>
+
+          <span className="sidebar-icon">
+            ♙
+          </span>
+
+          <span>
+            Registrations
+          </span>
+
         </NavLink>
-
-
-        <span className="sidebar-section-title second">
-          SYSTEM
-        </span>
-
-
-        <button
-          type="button"
-          className="sidebar-link sidebar-button"
-          onClick={handleReset}
-        >
-          <span>🔄</span>
-          <span>Reset Demo Data</span>
-        </button>
 
       </nav>
 
 
-      {/* BOTTOM */}
+      {/* ================= LOGOUT ================= */}
 
       <div className="sidebar-bottom">
 
-        <div className="sidebar-status">
-
-          <span className="online-dot"></span>
-
-          <span>
-            Demo mode active
-          </span>
-
-        </div>
-
-
         <button
           type="button"
-          className="sidebar-link sidebar-button logout"
+          className="logout-button"
           onClick={handleLogout}
         >
-          <span>🚪</span>
-          <span>Logout</span>
+
+          <span className="sidebar-icon">
+            ↪
+          </span>
+
+          <span>
+            Logout
+          </span>
+
         </button>
 
       </div>

@@ -1,0 +1,220 @@
+.about-page {
+  min-height: 100vh;
+  background: #f6f8fc;
+  color: #0f172a;
+}
+
+
+/* =========================================
+   HERO
+========================================= */
+
+.about-hero {
+  background: #ffffff;
+  text-align: center;
+
+  padding: 75px 20px 65px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.about-hero span {
+  color: #2563eb;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 2px;
+}
+
+.about-hero h1 {
+  margin: 15px 0;
+
+  font-size: 42px;
+  line-height: 1.15;
+
+  color: #0b1b3a;
+}
+
+.about-hero p {
+  max-width: 650px;
+
+  margin: 0 auto;
+
+  color: #64748b;
+
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.about-content {
+  width: min(1100px, calc(100% - 40px));
+
+  margin: 0 auto;
+
+  padding: 70px 0;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 60px;
+
+  align-items: center;
+}
+
+
+/* =========================================
+   TEXT
+========================================= */
+
+.about-label {
+  color: #2563eb;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+}
+
+.about-text h2 {
+  margin: 12px 0 20px;
+
+  font-size: 32px;
+
+  color: #0f172a;
+}
+
+.about-text p {
+  margin-bottom: 16px;
+
+  color: #64748b;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================
+   FEATURE CARDS
+========================================= */
+
+.about-features {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+.about-feature-card {
+  background: #ffffff;
+
+  padding: 22px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.about-feature-icon {
+  font-size: 25px;
+
+  margin-bottom: 10px;
+}
+
+.about-feature-card h3 {
+  margin: 0 0 8px;
+
+  font-size: 18px;
+}
+
+.about-feature-card p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   MISSION
+========================================= */
+
+.about-mission {
+  background: #2563eb;
+
+  color: #ffffff;
+
+  text-align: center;
+
+  padding: 65px 20px;
+}
+
+.about-mission span {
+  font-size: 13px;
+
+  font-weight: 700;
+
+  letter-spacing: 2px;
+}
+
+.about-mission h2 {
+  margin: 12px 0;
+
+  font-size: 30px;
+}
+
+.about-mission p {
+  max-width: 700px;
+
+  margin: 0 auto;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+  opacity: 0.9;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 750px) {
+
+  .about-hero {
+    padding: 55px 20px;
+  }
+
+  .about-hero h1 {
+    font-size: 32px;
+  }
+
+  .about-content {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+
+    padding: 50px 0;
+  }
+
+  .about-text h2 {
+    font-size: 27px;
+  }
+
+}

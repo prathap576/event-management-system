@@ -1,117 +1,164 @@
 import "./Login.css";
-import { Link, useNavigate } from "react-router-dom";
+
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  useAdmin,
+} from "../context/AdminContext";
+
+import {
+  useAuth,
+} from "../context/AuthContext";
+
 
 function Login() {
 
   const navigate = useNavigate();
 
+  const { loginAdmin } = useAdmin();
+
+  const { login } = useAuth();
+
+
   const handleLogin = async (e) => {
 
     e.preventDefault();
 
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    const selectedRole = e.target.role.value;
+    const email =
+      e.target.email.value;
 
-    try {
+    const password =
+      e.target.password.value;
 
-      const response = await fetch(
-        "http://localhost:8080/api/auth/login",
-        {
-          method: "POST",
+    const selectedRole =
+      e.target.role.value;
 
-          headers: {
-            "Content-Type": "application/json",
-          },
 
-          body: JSON.stringify({
-            email: email,
-            password: password,
-          }),
-        }
+    // ============================
+    // ROLE CHECK
+    // ============================
+
+    if (!selectedRole) {
+
+      alert("Please select a role.");
+
+      return;
+    }
+
+
+    // ============================
+    // LOGIN
+    // ============================
+
+    const result =
+      await loginAdmin(
+        email,
+        password
       );
 
 
-      // =========================
-      // BACKEND RESPONSE
-      // =========================
+    // ============================
+    // LOGIN FAILED
+    // ============================
 
-      const data = await response.json();
-
-
-      // =========================
-      // LOGIN FAILED
-      // =========================
-
-      if (!response.ok) {
-
-        alert(
-          typeof data === "string"
-            ? data
-            : "Invalid username or password"
-        );
-
-        return;
-      }
-
-
-      // =========================
-      // CHECK ROLE
-      // =========================
-
-      if (data.role !== selectedRole) {
-
-        alert("Incorrect role selected.");
-
-        return;
-      }
-
-
-      // =========================
-      // LOGIN SUCCESSFUL
-      // =========================
-
-      if (data.role === "ADMIN") {
-
-        navigate("/admin");
-
-      } else {
-
-        navigate("/events");
-
-      }
-
-    } catch (error) {
-
-      console.error(
-        "Login error:",
-        error
-      );
+    if (!result.success) {
 
       alert(
-        "Inavalid Username or Password."
+        result.message ||
+        "Invalid email or password."
       );
+
+      return;
+    }
+
+
+    // ============================
+    // GET LOGGED IN USER
+    // ============================
+
+    const loggedInUser =
+      result.user;
+
+
+    if (!loggedInUser) {
+
+      alert(
+        "Login successful, but user information was not received."
+      );
+
+      return;
+    }
+
+
+    // ============================
+    // ROLE CHECK
+    // ============================
+
+    if (
+      loggedInUser?.role?.toUpperCase() !==
+      selectedRole.toUpperCase()
+    ) {
+
+      alert(
+        "Incorrect role selected."
+      );
+
+      return;
+    }
+
+
+    // ============================
+    // SAVE USER IN AUTH CONTEXT
+    // ============================
+
+    login(loggedInUser);
+
+
+    // ============================
+    // REDIRECT
+    // ============================
+
+    if (
+      loggedInUser.role.toUpperCase() ===
+      "ADMIN"
+    ) {
+
+      navigate("/admin");
+
+    } else {
+
+      navigate("/dashboard");
     }
   };
 
 
   return (
+
     <div className="login-page">
 
       <div className="login-card">
 
-        <h1>Welcome Back</h1>
+        <div className="login-header">
 
-        <p>
-          Login to your EventHub account
-        </p>
+          <h1>
+            Welcome Back
+          </h1>
+
+          <p>
+            Login to your EventHub account
+          </p>
+
+        </div>
 
 
-        <form onSubmit={handleLogin}>
+        <form
+          onSubmit={handleLogin}
+        >
 
-          {/* =========================
-              EMAIL
-          ========================= */}
+          {/* EMAIL */}
 
           <div className="form-group">
 
@@ -129,9 +176,7 @@ function Login() {
           </div>
 
 
-          {/* =========================
-              PASSWORD
-          ========================= */}
+          {/* PASSWORD */}
 
           <div className="form-group">
 
@@ -149,9 +194,7 @@ function Login() {
           </div>
 
 
-          {/* =========================
-              ROLE
-          ========================= */}
+          {/* ROLE */}
 
           <div className="form-group">
 
@@ -181,9 +224,7 @@ function Login() {
           </div>
 
 
-          {/* =========================
-              LOGIN BUTTON
-          ========================= */}
+          {/* LOGIN BUTTON */}
 
           <button
             type="submit"
@@ -195,9 +236,7 @@ function Login() {
         </form>
 
 
-        {/* =========================
-            SIGNUP LINK
-        ========================= */}
+        {/* SIGNUP */}
 
         <p className="signup-text">
 

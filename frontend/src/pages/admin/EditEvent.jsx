@@ -13,7 +13,7 @@ import {
 
 import AdminSidebar from "../../components/admin/AdminSidebar";
 
-import EventForm from "../../components/admin/EventForm";
+import EventForm from "../../components/Admin/EventForm";
 
 
 function EditEvent() {

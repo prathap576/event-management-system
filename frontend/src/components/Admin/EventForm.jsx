@@ -12,8 +12,7 @@ const emptyForm = {
   location: "",
   category: "",
   capacity: "",
-  image: "",
-  status: "Published",
+  contactPhone: "",
 };
 
 
@@ -31,6 +30,10 @@ function EventForm({
     useState({});
 
 
+  // =========================================
+  // LOAD INITIAL DATA
+  // =========================================
+
   useEffect(() => {
 
     if (initialData) {
@@ -39,8 +42,9 @@ function EventForm({
         ...emptyForm,
         ...initialData,
         capacity:
-          initialData.capacity ||
-          "",
+          initialData.capacity || "",
+        contactPhone:
+          initialData.contactPhone || "",
       });
 
     }
@@ -48,9 +52,11 @@ function EventForm({
   }, [initialData]);
 
 
-  const handleChange = (
-    event
-  ) => {
+  // =========================================
+  // HANDLE INPUT CHANGE
+  // =========================================
+
+  const handleChange = (event) => {
 
     const {
       name,
@@ -58,28 +64,30 @@ function EventForm({
     } = event.target;
 
 
-    setForm(
-      (previous) => ({
-        ...previous,
-        [name]: value,
-      })
-    );
+    setForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
 
 
-    setErrors(
-      (previous) => ({
-        ...previous,
-        [name]: "",
-      })
-    );
+    setErrors((previous) => ({
+      ...previous,
+      [name]: "",
+    }));
 
   };
 
+
+  // =========================================
+  // VALIDATION
+  // =========================================
 
   const validate = () => {
 
     const newErrors = {};
 
+
+    // TITLE
 
     if (!form.title.trim()) {
 
@@ -87,8 +95,7 @@ function EventForm({
         "Event title is required.";
 
     } else if (
-      form.title.trim()
-        .length < 5
+      form.title.trim().length < 5
     ) {
 
       newErrors.title =
@@ -97,15 +104,17 @@ function EventForm({
     }
 
 
-    if (
-      !form.description.trim()
-    ) {
+    // DESCRIPTION
+
+    if (!form.description.trim()) {
 
       newErrors.description =
         "Description is required.";
 
     }
 
+
+    // DATE
 
     if (!form.date) {
 
@@ -115,6 +124,8 @@ function EventForm({
     }
 
 
+    // TIME
+
     if (!form.time) {
 
       newErrors.time =
@@ -123,15 +134,17 @@ function EventForm({
     }
 
 
-    if (
-      !form.location.trim()
-    ) {
+    // LOCATION
+
+    if (!form.location.trim()) {
 
       newErrors.location =
         "Location is required.";
 
     }
 
+
+    // CATEGORY
 
     if (!form.category) {
 
@@ -140,6 +153,8 @@ function EventForm({
 
     }
 
+
+    // CAPACITY
 
     if (
       !form.capacity ||
@@ -152,35 +167,54 @@ function EventForm({
     }
 
 
-    setErrors(
-      newErrors
-    );
+    // PHONE NUMBER
+
+    const phone =
+      form.contactPhone.trim();
+
+
+    if (!phone) {
+
+      newErrors.contactPhone =
+        "Contact phone number is required.";
+
+    } else if (
+      !/^[6-9]\d{9}$/.test(phone)
+    ) {
+
+      newErrors.contactPhone =
+        "Enter a valid 10-digit mobile number.";
+
+    }
+
+
+    setErrors(newErrors);
 
 
     return (
-      Object.keys(
-        newErrors
-      ).length === 0
+      Object.keys(newErrors).length === 0
     );
 
   };
 
 
-  const handleSubmit = (
-    event
-  ) => {
+  // =========================================
+  // SUBMIT
+  // =========================================
+
+  const handleSubmit = (event) => {
 
     event.preventDefault();
 
 
     if (!validate()) {
+
       return;
+
     }
 
 
     onSubmit({
-
-      ...form,
 
       title:
         form.title.trim(),
@@ -188,11 +222,23 @@ function EventForm({
       description:
         form.description.trim(),
 
+      date:
+        form.date,
+
+      time:
+        form.time,
+
       location:
         form.location.trim(),
 
+      category:
+        form.category,
+
       capacity:
         Number(form.capacity),
+
+      contactPhone:
+        form.contactPhone.trim(),
 
     });
 
@@ -206,7 +252,10 @@ function EventForm({
       onSubmit={handleSubmit}
     >
 
-      {/* BASIC INFORMATION */}
+
+      {/* =========================================
+          BASIC INFORMATION
+      ========================================= */}
 
       <div className="form-section">
 
@@ -235,6 +284,8 @@ function EventForm({
         <div className="form-grid">
 
 
+          {/* TITLE */}
+
           <div className="form-field full">
 
             <label>
@@ -259,6 +310,8 @@ function EventForm({
           </div>
 
 
+          {/* DESCRIPTION */}
+
           <div className="form-field full">
 
             <label>
@@ -268,9 +321,7 @@ function EventForm({
             <textarea
               name="description"
               rows="5"
-              value={
-                form.description
-              }
+              value={form.description}
               onChange={handleChange}
               placeholder="Describe your event..."
             />
@@ -278,9 +329,7 @@ function EventForm({
             {errors.description && (
 
               <small className="field-error">
-                {
-                  errors.description
-                }
+                {errors.description}
               </small>
 
             )}
@@ -292,7 +341,9 @@ function EventForm({
       </div>
 
 
-      {/* EVENT DETAILS */}
+      {/* =========================================
+          EVENT DETAILS
+      ========================================= */}
 
       <div className="form-section">
 
@@ -310,7 +361,8 @@ function EventForm({
 
             <p>
               Set the date, location,
-              category and capacity.
+              category, capacity and
+              contact information.
             </p>
 
           </div>
@@ -320,6 +372,8 @@ function EventForm({
 
         <div className="form-grid">
 
+
+          {/* DATE */}
 
           <div className="form-field">
 
@@ -345,6 +399,8 @@ function EventForm({
           </div>
 
 
+          {/* TIME */}
+
           <div className="form-field">
 
             <label>
@@ -369,6 +425,8 @@ function EventForm({
           </div>
 
 
+          {/* LOCATION */}
+
           <div className="form-field">
 
             <label>
@@ -392,6 +450,8 @@ function EventForm({
 
           </div>
 
+
+          {/* CATEGORY */}
 
           <div className="form-field">
 
@@ -446,6 +506,8 @@ function EventForm({
           </div>
 
 
+          {/* CAPACITY */}
+
           <div className="form-field">
 
             <label>
@@ -472,52 +534,43 @@ function EventForm({
           </div>
 
 
+          {/* CONTACT PHONE NUMBER */}
+
           <div className="form-field">
 
             <label>
-              Publishing Status
-            </label>
-
-            <select
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-            >
-
-              <option value="Published">
-                Published
-              </option>
-
-              <option value="Draft">
-                Draft
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <div className="form-field full">
-
-            <label>
-              Event Image URL
+              Contact Phone Number *
             </label>
 
             <input
-              name="image"
-              value={form.image}
+              type="tel"
+              name="contactPhone"
+              value={form.contactPhone}
               onChange={handleChange}
-              placeholder="https://example.com/event-image.jpg"
+              placeholder="e.g. 9876543210"
+              maxLength="10"
+              inputMode="numeric"
             />
 
+            {errors.contactPhone && (
+
+              <small className="field-error">
+                {errors.contactPhone}
+              </small>
+
+            )}
+
           </div>
+
 
         </div>
 
       </div>
 
 
-      {/* ACTIONS */}
+      {/* =========================================
+          ACTIONS
+      ========================================= */}
 
       <div className="form-actions">
 
@@ -537,15 +590,21 @@ function EventForm({
           className="primary-button"
           disabled={loading}
         >
+
           {loading
             ? "Saving..."
             : submitText}
+
         </button>
 
       </div>
 
+
     </form>
+
   );
+
 }
+
 
 export default EventForm;
